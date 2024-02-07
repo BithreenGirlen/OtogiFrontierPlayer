@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{38917097-c460-4cc8-914b-0f48754c177a}</ProjectGuid>
+    <RootNamespace>OtogiFrontierPlayer</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir)deps\SFML-2.6.1\include;$(ProjectDir)deps\spine-c-3.6\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)deps\SFML-2.6.1\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(ProjectDir)deps\SFML-2.6.1\include;$(ProjectDir)deps\spine-c-3.6\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)deps\SFML-2.6.1\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="deps\spine-c-3.6\src\spine\Json.h" />
+    <ClInclude Include="deps\spine-c-3.6\src\spine\kvec.h" />
+    <ClInclude Include="deps\spine-sfml-3.6\spine-sfml.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="OtogiFrontierPlayer.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="sfml_spine_player.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="win_dialogue.h" />
+    <ClInclude Include="win_filesystem.h" />
+    <ClInclude Include="win_media_player.h" />
+    <ClInclude Include="win_text.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Animation.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\AnimationState.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\AnimationStateData.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Array.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Atlas.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\AtlasAttachmentLoader.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Attachment.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\AttachmentLoader.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Bone.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\BoneData.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\BoundingBoxAttachment.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\ClippingAttachment.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Color.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Event.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\EventData.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\extension.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\IkConstraint.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\IkConstraintData.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Json.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\MeshAttachment.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\PathAttachment.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\PathConstraint.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\PathConstraintData.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\PointAttachment.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\RegionAttachment.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Skeleton.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SkeletonBinary.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SkeletonBounds.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SkeletonClipping.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SkeletonData.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SkeletonJson.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Skin.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Slot.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SlotData.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\TransformConstraint.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\TransformConstraintData.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Triangulator.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\VertexAttachment.c" />
+    <ClCompile Include="deps\spine-c-3.6\src\spine\VertexEffect.c" />
+    <ClCompile Include="deps\spine-sfml-3.6\spine-sfml.cpp" />
+    <ClCompile Include="OtogiFrontierPlayer.cpp" />
+    <ClCompile Include="sfml_spine_player.cpp" />
+    <ClCompile Include="win_dialogue.cpp" />
+    <ClCompile Include="win_filesystem.cpp" />
+    <ClCompile Include="win_media_player.cpp" />
+    <ClCompile Include="win_text.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="OtogiFrontierPlayer.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

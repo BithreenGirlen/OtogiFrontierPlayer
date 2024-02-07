@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ソース ファイル">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="リソース ファイル">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\deps">
+      <UniqueIdentifier>{53c7a30b-cc78-4a05-b355-441f7e25dcf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\deps">
+      <UniqueIdentifier>{3bfbcb0f-d76e-4a30-80f1-f2602f2ff97e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\deps\spine-sfml-3.6">
+      <UniqueIdentifier>{16a464ef-8135-40cb-883a-5420180d5bc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\deps\spine-c-3.6">
+      <UniqueIdentifier>{2218df7b-eb82-48df-a370-a12e18802a08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\deps\spine-sfml-3.6">
+      <UniqueIdentifier>{820dcd0d-8b53-4ec8-a4f8-1502343c38bb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="OtogiFrontierPlayer.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\spine-sfml-3.6\spine-sfml.h">
+      <Filter>ヘッダー ファイル\deps\spine-sfml-3.6</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\spine-c-3.6\src\spine\Json.h">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClInclude>
+    <ClInclude Include="deps\spine-c-3.6\src\spine\kvec.h">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClInclude>
+    <ClInclude Include="sfml_spine_player.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="win_dialogue.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="win_filesystem.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="win_media_player.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="win_text.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="OtogiFrontierPlayer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-sfml-3.6\spine-sfml.cpp">
+      <Filter>ソース ファイル\deps\spine-sfml-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Animation.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\AnimationState.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\AnimationStateData.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Array.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Atlas.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\AtlasAttachmentLoader.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Attachment.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\AttachmentLoader.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Bone.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\BoneData.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\BoundingBoxAttachment.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\ClippingAttachment.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Color.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Event.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\EventData.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\extension.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\IkConstraint.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\IkConstraintData.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Json.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\MeshAttachment.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\PathAttachment.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\PathConstraint.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\PathConstraintData.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\PointAttachment.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\RegionAttachment.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Skeleton.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SkeletonBinary.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SkeletonBounds.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SkeletonClipping.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SkeletonData.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SkeletonJson.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Skin.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Slot.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\SlotData.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\TransformConstraint.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\TransformConstraintData.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\Triangulator.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\VertexAttachment.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="deps\spine-c-3.6\src\spine\VertexEffect.c">
+      <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
+    </ClCompile>
+    <ClCompile Include="sfml_spine_player.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="win_dialogue.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="win_filesystem.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="win_media_player.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="win_text.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="OtogiFrontierPlayer.rc">
+      <Filter>リソース ファイル</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
