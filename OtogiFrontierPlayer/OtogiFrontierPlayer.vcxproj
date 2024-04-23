@@ -83,11 +83,9 @@
     <ClInclude Include="deps\spine-c-3.6\src\spine\Json.h" />
     <ClInclude Include="deps\spine-c-3.6\src\spine\kvec.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="OtogiFrontierPlayer.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="sfml-spine-c.h" />
     <ClInclude Include="sfml_spine_player.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="win_dialogue.h" />
     <ClInclude Include="win_filesystem.h" />
     <ClInclude Include="win_media_player.h" />
@@ -133,7 +131,7 @@
     <ClCompile Include="deps\spine-c-3.6\src\spine\Triangulator.c" />
     <ClCompile Include="deps\spine-c-3.6\src\spine\VertexAttachment.c" />
     <ClCompile Include="deps\spine-c-3.6\src\spine\VertexEffect.c" />
-    <ClCompile Include="OtogiFrontierPlayer.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="sfml-spine-c.cpp" />
     <ClCompile Include="sfml_spine_player.cpp" />
     <ClCompile Include="win_dialogue.cpp" />
