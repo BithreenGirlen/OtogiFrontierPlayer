@@ -5,7 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "deps/spine-sfml-3.6/spine-sfml.h"
+#include "sfml-spine-c.h"
 
 class CSfmlSpinePlayer
 {
@@ -18,7 +18,7 @@ public:
 private:
 	std::vector<spAtlas*> m_atlases;
 	std::vector<spSkeletonData*> m_skeletonData;
-	std::vector<std::shared_ptr<spine::SkeletonDrawable>> m_drawables;
+	std::vector<std::shared_ptr<CSfmlSpineDrawableC>> m_drawables;
 
 	std::unique_ptr<sf::RenderWindow> m_window;
 

@@ -13,20 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ヘッダー ファイル\deps">
-      <UniqueIdentifier>{53c7a30b-cc78-4a05-b355-441f7e25dcf3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\deps">
       <UniqueIdentifier>{3bfbcb0f-d76e-4a30-80f1-f2602f2ff97e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\deps\spine-sfml-3.6">
-      <UniqueIdentifier>{16a464ef-8135-40cb-883a-5420180d5bc9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\deps\spine-c-3.6">
       <UniqueIdentifier>{2218df7b-eb82-48df-a370-a12e18802a08}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ヘッダー ファイル\deps\spine-sfml-3.6">
-      <UniqueIdentifier>{820dcd0d-8b53-4ec8-a4f8-1502343c38bb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -41,9 +32,6 @@
     </ClInclude>
     <ClInclude Include="OtogiFrontierPlayer.h">
       <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="deps\spine-sfml-3.6\spine-sfml.h">
-      <Filter>ヘッダー ファイル\deps\spine-sfml-3.6</Filter>
     </ClInclude>
     <ClInclude Include="deps\spine-c-3.6\src\spine\Json.h">
       <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
@@ -66,13 +54,13 @@
     <ClInclude Include="win_text.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="sfml-spine-c.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OtogiFrontierPlayer.cpp">
       <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="deps\spine-sfml-3.6\spine-sfml.cpp">
-      <Filter>ソース ファイル\deps\spine-sfml-3.6</Filter>
     </ClCompile>
     <ClCompile Include="deps\spine-c-3.6\src\spine\Animation.c">
       <Filter>ソース ファイル\deps\spine-c-3.6</Filter>
@@ -206,10 +194,18 @@
     <ClCompile Include="win_text.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="sfml-spine-c.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OtogiFrontierPlayer.rc">
       <Filter>リソース ファイル</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon\221491.ico">
+      <Filter>リソース ファイル</Filter>
+    </Image>
   </ItemGroup>
 </Project>

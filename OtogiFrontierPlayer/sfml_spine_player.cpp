@@ -217,47 +217,45 @@ int CSfmlSpinePlayer::Display()
 				}
 				break;
 			case sf::Event::KeyReleased:
-				if (event.key.code == sf::Keyboard::Key::Escape)
+				switch (event.key.code)
 				{
+				case sf::Keyboard::Key::S:
+					for (size_t i = 0; i < m_drawables.size(); ++i)
+					{
+						m_drawables.at(i).get()->SwitchSelectivePma();
+					}
+					break;
+				case sf::Keyboard::Key::Escape:
 					m_window->close();
-				}
-				if (event.key.code == sf::Keyboard::Key::Up)
-				{
-					iRet = 2;
-					m_window->close();
-				}
-				if (event.key.code == sf::Keyboard::Key::Down)
-				{
-					iRet = 1;
-					m_window->close();
-				}
-				if (event.key.code == sf::Keyboard::Key::PageUp)
-				{
+					break;
+				case sf::Keyboard::Key::PageUp:
 					if (dbAudioRate < 2.41)
 					{
 						dbAudioRate += 0.1;
 					}
 					if (pMediaPlayer.get() != nullptr)pMediaPlayer->SetCurrentRate(dbAudioRate);
-				}
-				if (event.key.code == sf::Keyboard::Key::PageDown)
-				{
+					break;
+				case sf::Keyboard::Key::PageDown:
 					if (dbAudioRate > 0.59)
 					{
 						dbAudioRate -= 0.1;
 					}
 					if (pMediaPlayer.get() != nullptr)pMediaPlayer->SetCurrentRate(dbAudioRate);
-				}
-				if (event.key.code == sf::Keyboard::Key::Home)
-				{
+					break;
+				case sf::Keyboard::Key::Home:
 					dbAudioRate = 1.0;
 					if (pMediaPlayer.get() != nullptr)pMediaPlayer->SetCurrentRate(dbAudioRate);
-				}
-				if (event.key.code == sf::Keyboard::Key::A)
-				{
-					for (size_t i = 0; i < m_drawables.size(); ++i)
-					{
-						m_drawables.at(i).get()->SwitchSelectivePma();
-					}
+					break;
+				case sf::Keyboard::Key::Up:
+					iRet = 2;
+					m_window->close();
+					break;
+				case sf::Keyboard::Key::Down:
+					iRet = 1;
+					m_window->close();
+					break;
+				default:
+					break;
 				}
 				break;
 			}
@@ -279,41 +277,25 @@ int CSfmlSpinePlayer::Display()
 /*ï`âÊäÌê›íË*/
 bool CSfmlSpinePlayer::SetupDrawer()
 {
-	const std::vector<std::string> blendScreenList{ "breath", "smoke", "yuge", "vapor", "steam"};
-	const std::vector<std::string> blendMultiplyList{"cheek", "face2"};
-	//const std::vector<std::string> leaveOutList{};
 	/*
 	 * The spine outline shader, an extension by Unity, cannot be brought forth by SFML. 
 	 * Some scene gets closer to natural with premultiplied alpha disabled, some with enabled.
 	 */
-	const std::vector<std::string> pmaSelectiveList{ "penis", "tama", "vagina", "manko"};
+	const std::vector<std::string> pmaSelectiveList
+	{ "penis", "tama", "vagina", "manko", "penice", "chin", "ccitsu", "chitsu", "manco", "vibrator", "cover"};
 
 	for (size_t i = 0; i < m_skeletonData.size(); ++i)
 	{
-		m_drawables.emplace_back(std::make_shared<spine::SkeletonDrawable>(m_skeletonData.at(i)));
+		m_drawables.emplace_back(std::make_shared<CSfmlSpineDrawableC>(m_skeletonData.at(i)));
 
-		spine::SkeletonDrawable* drawable = m_drawables.at(i).get();
+		CSfmlSpineDrawableC* drawable = m_drawables.at(i).get();
 		drawable->timeScale = 1.0f;
 		drawable->skeleton->x = m_fMaxWidth / 2;
 		drawable->skeleton->y = m_fMaxHeight / 2;
 		spSkeleton_setToSetupPose(drawable->skeleton);
 		spSkeleton_updateWorldTransform(drawable->skeleton);
 
-		drawable->SetBlendMultiplyList(blendMultiplyList);
-		//drawable->SetLeaveOutList(leaveOutList);
 		drawable->SetSelectivePmaList(pmaSelectiveList);
-
-		for (size_t ii = 0; ii < drawable->skeleton->slotsCount; ++ii)
-		{
-			spSlot* slot = drawable->skeleton->drawOrder[ii];
-			for (const std::string& str : blendScreenList)
-			{
-				if (strstr(slot->data->name, str.c_str()))
-				{
-					slot->data->blendMode = spBlendMode::SP_BLEND_MODE_SCREEN;
-				}
-			}
-		}
 
 		for (size_t ii = 0; ii < m_skeletonData.at(i)->animationsCount; ++ii)
 		{
@@ -328,8 +310,7 @@ bool CSfmlSpinePlayer::SetupDrawer()
 	{
 		for (size_t i = 0; i < m_skeletonData.size(); ++i)
 		{
-			spine::SkeletonDrawable* drawable = m_drawables.at(i).get();
-			spAnimationState_setAnimationByName(drawable->state, 0, m_animationNames.at(0).c_str(), true);
+			spAnimationState_setAnimationByName(m_drawables.at(i).get()->state, 0, m_animationNames.at(0).c_str(), true);
 		}
 	}
 
@@ -417,8 +398,7 @@ void CSfmlSpinePlayer::ShiftScene()
 	if (m_nAnimationIndex > m_animationNames.size() - 1)m_nAnimationIndex = 0;
 	for (size_t i = 0; i < m_drawables.size(); ++i)
 	{
-		spine::SkeletonDrawable* drawable = m_drawables.at(i).get();
-		spAnimationState_setAnimationByName(drawable->state, 0, m_animationNames.at(m_nAnimationIndex).c_str(), true);
+		spAnimationState_setAnimationByName(m_drawables.at(i).get()->state, 0, m_animationNames.at(m_nAnimationIndex).c_str(), true);
 	}
 }
 /*çƒï`âÊ*/
@@ -429,7 +409,7 @@ void CSfmlSpinePlayer::Redraw(float fDelta)
 		m_window->clear();
 		for (size_t i = 0; i < m_drawables.size(); ++i)
 		{
-			m_drawables.at(i).get()->update(fDelta);
+			m_drawables.at(i).get()->Update(fDelta);
 			m_window->draw(*m_drawables.at(i).get(), sf::RenderStates(sf::BlendAlpha));
 		}
 		m_window->display();
