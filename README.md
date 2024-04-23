@@ -5,36 +5,6 @@
 - Windows OS later than Windows 10
 - MSVC 2015-2022 (x64)
 
-## Build dependency
-- [SFML-2.6.1](https://www.sfml-dev.org/download/sfml/2.6.1/)
-- [spine-c-3.6](https://github.com/EsotericSoftware/spine-runtimes/tree/3.6)
-
-The visual studio project assumes the following paths in the project folder.
-  <pre>
-    deps
-    ├ SFML-2.6.1
-    │   ├ include
-    │   │   └ SFML
-    │   │       └ ...
-    │   └ lib
-    │       └ ...
-    ├ spine-c-3.6
-    │   ├ include
-    │   │   └ spine
-    │   │       └ ...
-    │   └ src
-    │       └ spine
-    │           └ ...
-    └ spine-sfml-3.6
-        ├ spine-sfml.cpp
-        └ spine-sfml.h
-  </pre>
-## Feature limitation
-- The spine outline shader, an extension by Unity, cannot be brought forth by SFML.
-- Scaling skeleton had yet to be implemented in spine-c 3.6. They were added in 3.7-c.
-
-  I know that in older scenes the initial view point is set away from the center.  
-  But their generally grotesque physique are so unattractive that I am not inclined to adapt to the situation.
 ## How to play
 Select a folder containing spine resources such as the following.
 <pre>
@@ -47,7 +17,8 @@ Select a folder containing spine resources such as the following.
   ├ odin_S2.txt
   └ ...
 </pre>
-After selecting spine resources folder, the audio files will be searched and loaded if found assuming the following relative path.
+
+After selecting spine resources folder, the audio files will be searched assuming the following relative path, and loaded if found.
 <pre>
   assetbundleresources
   ├ chara
@@ -65,7 +36,7 @@ After selecting spine resources folder, the audio files will be searched and loa
               └ ...
   </pre>
 
-  ## Mouse functions
+## Mouse functions
 | Input  | Action  |
 | --- | --- |
 | Mouse wheel | Scale up/down the window |
@@ -75,7 +46,8 @@ After selecting spine resources folder, the audio files will be searched and loa
 | Middle button | Reset scaling, animation speed, and view point. |
 | Right button + mouse wheel | Play the next/previous audio file. |
 | Right button + left button | Move Window |
-  ## Key functions
+
+## Key functions
 | Input  | Action  |
 | --- | --- |
 | Esc | Close the application. |
@@ -84,4 +56,33 @@ After selecting spine resources folder, the audio files will be searched and loa
 | PageUp | Speed up the audio playback rate. |
 | PageDown | Speed down the audio playback rate. |
 | Home | Reset the audio playback rate.|  
-| A | Switch premultiplied alpha behaviour to the sensitive slots.|  
+| A | Enable/disable premultiplied alpha to the sensitive slots.|  
+
+## Libraries
+- [SFML-2.6.1](https://www.sfml-dev.org/download/sfml/2.6.1/)
+- [spine-c-3.6](https://github.com/EsotericSoftware/spine-runtimes/tree/3.6)
+
+The visual studio project assumes the following paths in the project folder.
+<pre>
+  deps
+  ├ SFML-2.6.1
+  │   ├ include
+  │   │   └ SFML
+  │   │       └ ...
+  │   └ lib
+  │       └ ...
+  └ spine-c-3.6
+      ├ include
+      │   └ spine
+      │       └ ...
+      └ src
+          └ spine
+              └ ...
+</pre>
+
+## Feature limitation
+- The spine outline shader, an extension by Unity, cannot be brought forth by SFML.
+- Scaling skeleton had yet to be implemented in spine-c 3.6; it was added in 3.7-c.
+
+  I know that in older scenes the initial view point is set away from the center.  
+  But their generally grotesque physique are so unattractive that I am not inclined to adapt to the situation.
