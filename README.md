@@ -56,7 +56,7 @@ After selecting spine resources folder, the audio files will be searched assumin
 | PageUp | Speed up the audio playback rate. |
 | PageDown | Speed down the audio playback rate. |
 | Home | Reset the audio playback rate.|  
-| A | Enable/disable premultiplied alpha to the sensitive slots.|  
+| S | Enable/disable premultiplied alpha to the sensitive slots.|  
 
 ## Libraries
 - [SFML-2.6.1](https://www.sfml-dev.org/download/sfml/2.6.1/)
