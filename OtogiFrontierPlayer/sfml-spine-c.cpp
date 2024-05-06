@@ -133,6 +133,7 @@ void CSfmlSpineDrawableC::draw(sf::RenderTarget& renderTarget, sf::RenderStates 
 				continue;
 			}
 
+			spFloatArray_setSize(pVertices, 8);
 			spRegionAttachment_computeWorldVertices(pRegionAttachment, slot->bone, pVertices->items, 0, 2);
 			verticesCount = 4;
 			pAttachmentUvs = pRegionAttachment->uvs;
