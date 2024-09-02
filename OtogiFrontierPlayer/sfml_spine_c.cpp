@@ -1,7 +1,7 @@
 ﻿
 #include <spine/extension.h>
 
-#include "sfml-spine-c.h"
+#include "sfml_spine_c.h"
 
 /*Implementations for <extension.h>*/
 

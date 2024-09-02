@@ -48,7 +48,7 @@
     <ClInclude Include="win_text.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="sfml-spine-c.h">
+    <ClInclude Include="sfml_spine_c.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -188,7 +188,7 @@
     <ClCompile Include="win_text.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="sfml-spine-c.cpp">
+    <ClCompile Include="sfml_spine_c.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

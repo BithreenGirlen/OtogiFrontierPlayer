@@ -5,7 +5,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "sfml-spine-c.h"
+#include "sfml_spine_c.h"
 
 class CSfmlSpinePlayer
 {
