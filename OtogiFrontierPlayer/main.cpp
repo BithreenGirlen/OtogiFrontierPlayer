@@ -24,11 +24,11 @@ void GetSpineList(const std::wstring& wstrFolderPath, std::vector<std::string>& 
 
         if (filePath.rfind(L".atlas") != std::wstring::npos)
         {
-            atlasPaths.push_back(win_text::NarrowUtf8(filePath));
+            atlasPaths.push_back(win_text::NarrowANSI(filePath));
         }
         else
         {
-            skelPaths.push_back(win_text::NarrowUtf8(filePath));
+            skelPaths.push_back(win_text::NarrowANSI(filePath));
         }
     }
 }
@@ -119,25 +119,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
             CSfmlSpinePlayer SfmlPlayer;
             bool bRet = SfmlPlayer.SetSpine(atlasPaths, skelPaths, skelPaths.at(0).rfind(".skel") != std::string::npos);
-            if (bRet)
-            {
-                SfmlPlayer.SetAudios(audioFilePaths);
+            if (!bRet)break;
 
-                int iRet = SfmlPlayer.Display();
-                if (iRet == 1)
-                {
-                    ++nFolderIndex;
-                    if (nFolderIndex > folders.size() - 1)nFolderIndex = 0;
-                }
-                else if (iRet == 2)
-                {
-                    --nFolderIndex;
-                    if (nFolderIndex > folders.size() - 1)nFolderIndex = folders.size() - 1;
-                }
-                else
-                {
-                    break;
-                }
+            SfmlPlayer.SetAudios(audioFilePaths);
+
+            int iRet = SfmlPlayer.Display();
+            if (iRet == 1)
+            {
+                ++nFolderIndex;
+                if (nFolderIndex > folders.size() - 1)nFolderIndex = 0;
+            }
+            else if (iRet == 2)
+            {
+                --nFolderIndex;
+                if (nFolderIndex > folders.size() - 1)nFolderIndex = folders.size() - 1;
             }
             else
             {
