@@ -39,13 +39,13 @@ After selecting spine resources folder, the audio files will be searched assumin
 ## Mouse functions
 | Input  | Action  |
 | --- | --- |
-| Mouse wheel | Scale up/down the window |
+| Mouse wheel | Scale up/down the window. |
 | Left button + mouse wheel | Speed up/down the animation. |
-| Left button click | Switch to the next animation. |
-| Left button drag | Move View point |
+| Left button click | Switch to next animation. |
+| Left button drag | Move view point. |
 | Middle button | Reset scaling, animation speed, and view point. |
-| Right button + mouse wheel | Play the next/previous audio file. |
-| Right button + left button | Move Window |
+| Right button + mouse wheel | Play next/previous audio file. |
+| Right button + left button | Move window. |
 
 ## Key functions
 | Input  | Action  |
@@ -55,14 +55,17 @@ After selecting spine resources folder, the audio files will be searched assumin
 | Down | Move on to the previous folder. |
 | PageUp | Speed up the audio playback rate. |
 | PageDown | Speed down the audio playback rate. |
-| Home | Reset the audio playback rate.|  
-| S | Enable/disable premultiplied alpha to the sensitive slots.|  
+| Home | Reset the audio playback rate.|
+| D | Enable/disable initial offset.|
+| S | Enable/disable premultiplied alpha to sensitive slots.|
+
+It is better to disable the initial offset for newer scenes, and to enable for older scenes.
 
 ## Libraries
 - [SFML-2.6.1](https://www.sfml-dev.org/download/sfml/2.6.1/)
 - [spine-c-3.6](https://github.com/EsotericSoftware/spine-runtimes/tree/3.6)
 
-The visual studio project assumes the following paths in the project folder.
+The Visual Studio project assumes the following paths under the project folder.
 <pre>
   deps
   ├ SFML-2.6.1
@@ -81,8 +84,4 @@ The visual studio project assumes the following paths in the project folder.
 </pre>
 
 ## Feature limitation
-- The spine outline shader, an extension by Unity, cannot be brought forth by SFML.
-- Scaling skeleton had yet to be implemented in spine-c 3.6; it was added in 3.7-c.
-
-  I know that in older scenes the initial view point is set away from the center.  
-  But their generally grotesque physique are so unattractive that I am not inclined to adapt to the situation.
+- Spine outline shader, an extension by Unity, cannot be brought forth by SFML.
