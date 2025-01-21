@@ -310,7 +310,7 @@ bool CSfmlSpinePlayer::SetupDrawer()
 	{
 		for (size_t i = 0; i < m_skeletonData.size(); ++i)
 		{
-			spAnimationState_setAnimationByName(m_drawables.at(i).get()->state, 0, m_animationNames.at(0).c_str(), true);
+			spAnimationState_setAnimationByName(m_drawables.at(i).get()->animationState, 0, m_animationNames.at(0).c_str(), true);
 		}
 	}
 
@@ -338,6 +338,8 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 
 	for (const auto& pSkeletonData : m_skeletonData)
 	{
+		if (pSkeletonData->defaultSkin == nullptr)continue;
+
 		const char* attachmentName = spSkin_getAttachmentName(pSkeletonData->defaultSkin, 0, 0);
 		if (attachmentName == nullptr)continue;
 
@@ -524,7 +526,7 @@ void CSfmlSpinePlayer::ShiftAnimation()
 	if (m_nAnimationIndex > m_animationNames.size() - 1)m_nAnimationIndex = 0;
 	for (size_t i = 0; i < m_drawables.size(); ++i)
 	{
-		spAnimationState_setAnimationByName(m_drawables.at(i).get()->state, 0, m_animationNames.at(m_nAnimationIndex).c_str(), true);
+		spAnimationState_setAnimationByName(m_drawables.at(i).get()->animationState, 0, m_animationNames.at(m_nAnimationIndex).c_str(), true);
 	}
 }
 /*çƒï`âÊ*/

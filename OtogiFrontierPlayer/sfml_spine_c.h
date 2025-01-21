@@ -11,7 +11,7 @@ public:
 	~CSfmlSpineDrawableC();
 
 	spSkeleton* skeleton = nullptr;
-	spAnimationState* state = nullptr;
+	spAnimationState* animationState = nullptr;
 	float timeScale = 1.f;
 
 	void Update(float fDelta);
@@ -26,10 +26,10 @@ private:
 	mutable bool m_bAlphaPremultiplied = true;
 	bool m_bSelectivePma = false;
 
+	spSkeletonClipping* m_clipper = nullptr;
+
 	spFloatArray* m_worldVertices = nullptr;
 	mutable sf::VertexArray m_sfmlVertices;
-
-	spSkeletonClipping* m_clipper = nullptr;
 
 	std::vector<std::string> m_PmaSelectiveList;
 

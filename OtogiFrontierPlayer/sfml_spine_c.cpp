@@ -5,7 +5,7 @@
 
 /*Implementations for <extension.h>*/
 
-void _spAtlasPage_createTexture(spAtlasPage* self, const char* path)
+void _spAtlasPage_createTexture(spAtlasPage* pAtlasPage, const char* path)
 {
 	sf::Texture* texture = new sf::Texture();
 	if (!texture->loadFromFile(path))
@@ -14,16 +14,23 @@ void _spAtlasPage_createTexture(spAtlasPage* self, const char* path)
 		return;
 	}
 
-	if (self->magFilter == SP_ATLAS_LINEAR)
+	if (pAtlasPage->magFilter == SP_ATLAS_LINEAR)
 	{
 		texture->setSmooth(true);
 	}
-	if (self->uWrap == SP_ATLAS_REPEAT && self->vWrap == SP_ATLAS_REPEAT)
+	if (pAtlasPage->uWrap == SP_ATLAS_REPEAT && pAtlasPage->vWrap == SP_ATLAS_REPEAT)
 	{
 		texture->setRepeated(true);
 	}
 
-	self->rendererObject = texture;
+	if (pAtlasPage->width == 0 || pAtlasPage->height == 0)
+	{
+		sf::Vector2u size = texture->getSize();
+		pAtlasPage->width = size.x;
+		pAtlasPage->height = size.y;
+	}
+
+	pAtlasPage->rendererObject = texture;
 }
 
 void _spAtlasPage_disposeTexture(spAtlasPage* self)
@@ -35,13 +42,26 @@ char* _spUtil_readFile(const char* path, int* length)
 {
 	return _spReadFile(path, length);
 }
-// end of implementations for <extension.h>
+/* end of implementations for <extension.h> */
+
+static sf::BlendMode g_sfmlBlendModeNormalPma = sf::BlendMode(sf::BlendMode::One, sf::BlendMode::OneMinusSrcAlpha);
+static sf::BlendMode g_sfmlBlendModeAddPma = sf::BlendMode(sf::BlendMode::One, sf::BlendMode::One);
+static sf::BlendMode g_sfmlBlendModeScreen = sf::BlendMode(sf::BlendMode::One, sf::BlendMode::OneMinusSrcColor);
+static sf::BlendMode g_sfmlBlendModeMultiply = sf::BlendMode
+(
+	sf::BlendMode::Factor::DstColor,
+	sf::BlendMode::Factor::OneMinusSrcAlpha,
+	sf::BlendMode::Equation::Add,
+	sf::BlendMode::Factor::Zero,
+	sf::BlendMode::Factor::One,
+	sf::BlendMode::Equation::Add
+);
 
 CSfmlSpineDrawableC::CSfmlSpineDrawableC(spSkeletonData* pSkeletonData, spAnimationStateData* pAnimationStateData)
 {
 	spBone_setYDown(true);
 
-	m_worldVertices = spFloatArray_create(pSkeletonData->bonesCount * sizeof(spFloatArray) / sizeof(float));
+	m_worldVertices = spFloatArray_create(128);
 
 	m_sfmlVertices.setPrimitiveType(sf::PrimitiveType::Triangles);
 
@@ -52,7 +72,7 @@ CSfmlSpineDrawableC::CSfmlSpineDrawableC(spSkeletonData* pSkeletonData, spAnimat
 		m_bHasOwnAnimationStateData = true;
 	}
 
-	state = spAnimationState_create(pAnimationStateData);
+	animationState = spAnimationState_create(pAnimationStateData);
 
 	m_clipper = spSkeletonClipping_create();
 }
@@ -63,14 +83,14 @@ CSfmlSpineDrawableC::~CSfmlSpineDrawableC()
 	{
 		spFloatArray_dispose(m_worldVertices);
 	}
-	if (state != nullptr)
+	if (animationState != nullptr)
 	{
 		if (m_bHasOwnAnimationStateData)
 		{
-			spAnimationStateData_dispose(state->data);
+			spAnimationStateData_dispose(animationState->data);
 		}
 
-		spAnimationState_dispose(state);
+		spAnimationState_dispose(animationState);
 	}
 	if (skeleton != nullptr)
 	{
@@ -84,11 +104,11 @@ CSfmlSpineDrawableC::~CSfmlSpineDrawableC()
 
 void CSfmlSpineDrawableC::Update(float fDelta)
 {
-	if (skeleton == nullptr || state == nullptr)return;
+	if (skeleton == nullptr || animationState == nullptr)return;
 
 	spSkeleton_update(skeleton, fDelta);
-	spAnimationState_update(state, fDelta * timeScale);
-	spAnimationState_apply(state, skeleton);
+	spAnimationState_update(animationState, fDelta * timeScale);
+	spAnimationState_apply(animationState, skeleton);
 	spSkeleton_updateWorldTransform(skeleton);
 }
 
@@ -96,25 +116,23 @@ void CSfmlSpineDrawableC::draw(sf::RenderTarget& renderTarget, sf::RenderStates 
 {
 	static unsigned short quadIndices[] = { 0, 1, 2, 2, 3, 0 };
 
-	if (m_worldVertices == nullptr || m_clipper == nullptr || skeleton == nullptr || state == nullptr)return;
+	if (m_worldVertices == nullptr || m_clipper == nullptr || skeleton == nullptr || animationState == nullptr)return;
 
 	if (skeleton->color.a == 0) return;
 
 	for (int i = 0; i < skeleton->slotsCount; ++i)
 	{
-		spSlot* slot = skeleton->drawOrder[i];
-		spAttachment* pAttachment = slot->attachment;
+		spSlot* pSlot = skeleton->drawOrder[i];
+		spAttachment* pAttachment = pSlot->attachment;
 		/*spine-c 3.6 lacks slot->bone->active*/
-		if (pAttachment == nullptr || slot->color.a == 0 )
+		if (pAttachment == nullptr || (pSlot->color.a == 0 && pAttachment->type != SP_ATTACHMENT_CLIPPING))
 		{
-			spSkeletonClipping_clipEnd(m_clipper, slot);
+			spSkeletonClipping_clipEnd(m_clipper, pSlot);
 			continue;
 		}
 
 		spFloatArray* pVertices = m_worldVertices;
-		int verticesCount = 0;
 		float* pAttachmentUvs = nullptr;
-
 		unsigned short* pIndices = nullptr;
 		int indicesCount = 0;
 
@@ -129,16 +147,16 @@ void CSfmlSpineDrawableC::draw(sf::RenderTarget& renderTarget, sf::RenderStates 
 
 			if (pAttachmentColor->a == 0)
 			{
-				spSkeletonClipping_clipEnd(m_clipper, slot);
+				spSkeletonClipping_clipEnd(m_clipper, pSlot);
 				continue;
 			}
 
 			spFloatArray_setSize(pVertices, 8);
-			spRegionAttachment_computeWorldVertices(pRegionAttachment, slot->bone, pVertices->items, 0, 2);
-			verticesCount = 4;
+			spRegionAttachment_computeWorldVertices(pRegionAttachment, pSlot->bone, pVertices->items, 0, 2);
 			pAttachmentUvs = pRegionAttachment->uvs;
 			pIndices = quadIndices;
-			indicesCount = 6;
+			indicesCount = sizeof(quadIndices) / sizeof(unsigned short);
+
 			pSfmlTexture = (sf::Texture*)((spAtlasRegion*)pRegionAttachment->rendererObject)->page->rendererObject;
 		}
 		else if (pAttachment->type == SP_ATTACHMENT_MESH)
@@ -148,47 +166,53 @@ void CSfmlSpineDrawableC::draw(sf::RenderTarget& renderTarget, sf::RenderStates 
 
 			if (pAttachmentColor->a == 0)
 			{
-				spSkeletonClipping_clipEnd(m_clipper, slot);
+				spSkeletonClipping_clipEnd(m_clipper, pSlot);
 				continue;
 			}
 			spFloatArray_setSize(pVertices, pMeshAttachment->super.worldVerticesLength);
-			spVertexAttachment_computeWorldVertices(SUPER(pMeshAttachment), slot, 0, pMeshAttachment->super.worldVerticesLength, pVertices->items, 0, 2);
-			verticesCount = pMeshAttachment->super.worldVerticesLength / 2;
+			spVertexAttachment_computeWorldVertices(SUPER(pMeshAttachment), pSlot, 0, pMeshAttachment->super.worldVerticesLength, pVertices->items, 0, 2);
 			pAttachmentUvs = pMeshAttachment->uvs;
 			pIndices = pMeshAttachment->triangles;
 			indicesCount = pMeshAttachment->trianglesCount;
+
 			pSfmlTexture = (sf::Texture*)((spAtlasRegion*)pMeshAttachment->rendererObject)->page->rendererObject;
 
 		}
 		else if (pAttachment->type == SP_ATTACHMENT_CLIPPING)
 		{
-			spClippingAttachment* clip = (spClippingAttachment*)slot->attachment;
-			spSkeletonClipping_clipStart(m_clipper, slot, clip);
+			spClippingAttachment* clip = (spClippingAttachment*)pSlot->attachment;
+			spSkeletonClipping_clipStart(m_clipper, pSlot, clip);
 			continue;
 		}
 		else
 		{
+			spSkeletonClipping_clipEnd(m_clipper, pSlot);
 			continue;
 		}
 
 		if (spSkeletonClipping_isClipping(m_clipper))
 		{
-			spSkeletonClipping_clipTriangles(m_clipper, pVertices->items, verticesCount / 2, pIndices, indicesCount, pAttachmentUvs, 2);
+			/*The third argumnet `verticesLength` is not unsed inside the function.*/
+			spSkeletonClipping_clipTriangles(m_clipper, pVertices->items, pVertices->size, pIndices, indicesCount, pAttachmentUvs, 2);
+			if (m_clipper->clippedTriangles->size == 0)
+			{
+				spSkeletonClipping_clipEnd(m_clipper, pSlot);
+				continue;
+			}
 			pVertices = m_clipper->clippedVertices;
-			verticesCount = m_clipper->clippedVertices->size / 2;
 			pAttachmentUvs = m_clipper->clippedUVs->items;
 			pIndices = m_clipper->clippedTriangles->items;
 			indicesCount = m_clipper->clippedTriangles->size;
 		}
 
 		spColor tint;
-		tint.r = skeleton->color.r * slot->color.r * pAttachmentColor->r;
-		tint.g = skeleton->color.g * slot->color.g * pAttachmentColor->g;
-		tint.b = skeleton->color.b * slot->color.b * pAttachmentColor->b;
-		tint.a = skeleton->color.a * slot->color.a * pAttachmentColor->a;
+		tint.r = skeleton->color.r * pSlot->color.r * pAttachmentColor->r;
+		tint.g = skeleton->color.g * pSlot->color.g * pAttachmentColor->g;
+		tint.b = skeleton->color.b * pSlot->color.b * pAttachmentColor->b;
+		tint.a = skeleton->color.a * pSlot->color.a * pAttachmentColor->a;
 
 		sf::Vector2u sfmlSize = pSfmlTexture->getSize();
-		m_bAlphaPremultiplied = true ^ IsPmaForciblyDisabled(slot->attachment->name);
+		m_bAlphaPremultiplied = true ^ IsPmaForciblyDisabled(pSlot->attachment->name);
 
 		m_sfmlVertices.clear();
 		for (int ii = 0; ii < indicesCount; ++ii)
@@ -206,46 +230,27 @@ void CSfmlSpineDrawableC::draw(sf::RenderTarget& renderTarget, sf::RenderStates 
 		}
 
 		sf::BlendMode sfmlBlendMode;
-		switch (slot->data->blendMode)
+		switch (pSlot->data->blendMode)
 		{
 		case spBlendMode::SP_BLEND_MODE_ADDITIVE:
-			sfmlBlendMode.colorSrcFactor = m_bAlphaPremultiplied ? sf::BlendMode::Factor::One : sf::BlendMode::Factor::SrcAlpha;
-			sfmlBlendMode.colorDstFactor = sf::BlendMode::Factor::One;
-			sfmlBlendMode.colorEquation = sf::BlendMode::Equation::Add;
-			sfmlBlendMode.alphaSrcFactor = sf::BlendMode::Factor::One;
-			sfmlBlendMode.alphaDstFactor = sf::BlendMode::Factor::One;
-			sfmlBlendMode.alphaEquation = sf::BlendMode::Equation::Add;
+			sfmlBlendMode = m_bAlphaPremultiplied ? g_sfmlBlendModeAddPma : sf::BlendAdd;
 			break;
 		case spBlendMode::SP_BLEND_MODE_MULTIPLY:
-			sfmlBlendMode.colorSrcFactor = sf::BlendMode::Factor::DstColor;
-			sfmlBlendMode.colorDstFactor = sf::BlendMode::Factor::OneMinusSrcAlpha;
-			sfmlBlendMode.colorEquation = sf::BlendMode::Equation::Add;
-			sfmlBlendMode.alphaSrcFactor = sf::BlendMode::Factor::OneMinusSrcAlpha;
-			sfmlBlendMode.alphaDstFactor = sf::BlendMode::Factor::OneMinusSrcAlpha;
-			sfmlBlendMode.alphaEquation = sf::BlendMode::Equation::Add;
+			sfmlBlendMode = g_sfmlBlendModeMultiply;
 			break;
 		case spBlendMode::SP_BLEND_MODE_SCREEN:
-			sfmlBlendMode.colorSrcFactor = sf::BlendMode::Factor::One;
-			sfmlBlendMode.colorDstFactor = sf::BlendMode::Factor::OneMinusSrcColor;
-			sfmlBlendMode.colorEquation = sf::BlendMode::Equation::Add;
-			sfmlBlendMode.alphaSrcFactor = sf::BlendMode::Factor::OneMinusSrcColor;
-			sfmlBlendMode.alphaDstFactor = sf::BlendMode::Factor::OneMinusSrcColor;
-			sfmlBlendMode.alphaEquation = sf::BlendMode::Equation::Add;
+			sfmlBlendMode = g_sfmlBlendModeScreen;
 			break;
 		default:
-			sfmlBlendMode.colorSrcFactor = m_bAlphaPremultiplied ? sf::BlendMode::Factor::One : sf::BlendMode::SrcAlpha;
-			sfmlBlendMode.colorDstFactor = sf::BlendMode::Factor::OneMinusSrcAlpha;
-			sfmlBlendMode.colorEquation = sf::BlendMode::Equation::Add;
-			sfmlBlendMode.alphaSrcFactor = sf::BlendMode::Factor::One;
-			sfmlBlendMode.alphaDstFactor = sf::BlendMode::Factor::OneMinusSrcAlpha;
-			sfmlBlendMode.alphaEquation = sf::BlendMode::Equation::Add;
+			sfmlBlendMode = m_bAlphaPremultiplied ? g_sfmlBlendModeNormalPma : sf::BlendAlpha;
 			break;
 		}
 
 		renderStates.blendMode = sfmlBlendMode;
 		renderStates.texture = pSfmlTexture;
 		renderTarget.draw(m_sfmlVertices, renderStates);
-		spSkeletonClipping_clipEnd(m_clipper, slot);
+
+		spSkeletonClipping_clipEnd(m_clipper, pSlot);
 	}
 	spSkeletonClipping_clipEnd2(m_clipper);
 }
