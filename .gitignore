@@ -361,5 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/OtogiFrontierPlayer/deps/SFML-2.6.1
+
+/OtogiFrontierPlayer/deps/SFML-2.6.2
 /OtogiFrontierPlayer/deps/spine-c-3.6

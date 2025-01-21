@@ -1,6 +1,9 @@
 ﻿
 
-#include "framework.h"
+#include <SDKDDKVer.h>
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
 
 #include "win_dialogue.h"
 #include "win_filesystem.h"

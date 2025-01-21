@@ -44,12 +44,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)deps\SFML-2.6.1\include;$(ProjectDir)deps\spine-c-3.6\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)deps\SFML-2.6.1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)deps\SFML-2.6.2\include;$(ProjectDir)deps\spine-c-3.6\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)deps\SFML-2.6.2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)deps\SFML-2.6.1\include;$(ProjectDir)deps\spine-c-3.6\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)deps\SFML-2.6.1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)deps\SFML-2.6.2\include;$(ProjectDir)deps\spine-c-3.6\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)deps\SFML-2.6.2\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -82,7 +82,6 @@
   <ItemGroup>
     <ClInclude Include="deps\spine-c-3.6\src\spine\Json.h" />
     <ClInclude Include="deps\spine-c-3.6\src\spine\kvec.h" />
-    <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="sfml_spine_c.h" />
     <ClInclude Include="sfml_spine_player.h" />
