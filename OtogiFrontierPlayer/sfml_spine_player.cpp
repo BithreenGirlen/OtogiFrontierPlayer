@@ -14,26 +14,9 @@
 #pragma comment(lib, "sfml-window.lib")
 #endif // _DEBUG
 
+#include "spine_loader_c.h"
 #include "win_media_player.h"
 
-
-spSkeletonData* readSkeletonJsonData(const char* filename, spAtlas* atlas, float scale)
-{
-	spSkeletonJson* json = spSkeletonJson_create(atlas);
-	json->scale = scale;
-	spSkeletonData* skeletonData = spSkeletonJson_readSkeletonDataFile(json, filename);
-	spSkeletonJson_dispose(json);
-	return skeletonData;
-}
-
-spSkeletonData* readSkeletonBinaryData(const char* filename, spAtlas* atlas, float scale)
-{
-	spSkeletonBinary* binary = spSkeletonBinary_create(atlas);
-	binary->scale = scale;
-	spSkeletonData* skeletonData = spSkeletonBinary_readSkeletonDataFile(binary, filename);
-	spSkeletonBinary_dispose(binary);
-	return skeletonData;
-}
 
 CSfmlSpinePlayer::CSfmlSpinePlayer()
 {
@@ -42,48 +25,29 @@ CSfmlSpinePlayer::CSfmlSpinePlayer()
 
 CSfmlSpinePlayer::~CSfmlSpinePlayer()
 {
-	for (size_t i = 0; i < m_atlases.size(); ++i)
-	{
-		if (m_atlases.at(i) != nullptr)
-		{
-			spAtlas_dispose(m_atlases.at(i));
-		}
-	}
-	m_atlases.clear();
-	for (size_t i = 0; i < m_skeletonData.size(); ++i)
-	{
-		if (m_skeletonData.at(i) != nullptr)
-		{
-			spSkeletonData_dispose(m_skeletonData.at(i));
-		}
-	}
-	m_skeletonData.clear();
+
 }
 
 bool CSfmlSpinePlayer::SetSpine(const std::vector<std::string>& atlasPaths, const std::vector<std::string>& skelPaths, bool bIsBinary)
 {
 	if (atlasPaths.size() != skelPaths.size())return false;
+	ClearDrawables();
 
 	for (size_t i = 0; i < atlasPaths.size(); ++i)
 	{
 		const std::string& strAtlasPath = atlasPaths.at(i);
 		const std::string& strSkeletonPath = skelPaths.at(i);
 
-		spAtlas* atlas = spAtlas_createFromFile(strAtlasPath.c_str(), nullptr);
-		if (atlas == nullptr)continue;
+		std::shared_ptr<spAtlas> atlas = spine_loader_c::CreateAtlasFromFile(strAtlasPath.c_str(), nullptr);
+		if (atlas.get() == nullptr)continue;
 
-		spSkeletonData* skeletonData = bIsBinary ? readSkeletonBinaryData(strSkeletonPath.c_str(), atlas, 1.f) : readSkeletonJsonData(strSkeletonPath.c_str(), atlas, 1.f);
-		if (skeletonData == nullptr)
-		{
-			if (atlas != nullptr)
-			{
-				spAtlas_dispose(atlas);
-			}
-			continue;
-		}
+		std::shared_ptr<spSkeletonData> skeletonData = bIsBinary ?
+			spine_loader_c::ReadBinarySkeletonFromFile(strSkeletonPath.c_str(), atlas.get()) :
+			spine_loader_c::ReadTextSkeletonFromFile(strSkeletonPath.c_str(), atlas.get());
+		if (skeletonData.get() == nullptr)continue;
 
-		m_atlases.emplace_back(atlas);
-		m_skeletonData.emplace_back(skeletonData);
+		m_atlases.push_back(atlas);
+		m_skeletonData.push_back(skeletonData);
 	}
 
 	WorkOutDefualtSize();
@@ -94,7 +58,7 @@ bool CSfmlSpinePlayer::SetSpine(const std::vector<std::string>& atlasPaths, cons
 /*音声ファイル設定*/
 void CSfmlSpinePlayer::SetAudios(std::vector<std::wstring>& filePaths)
 {
-	m_audio_files = filePaths;
+	m_audioFilePaths = filePaths;
 }
 /*ウィンドウ表示*/
 int CSfmlSpinePlayer::Display()
@@ -112,7 +76,7 @@ int CSfmlSpinePlayer::Display()
 
 	/*The media player is based on Microsoft Media Foundation because SFML does not support .m4a file.*/
 	std::unique_ptr<CMediaPlayer> pMediaPlayer = std::make_unique<CMediaPlayer>(m_window->getSystemHandle());
-	pMediaPlayer->SetFiles(m_audio_files);
+	pMediaPlayer->SetFiles(m_audioFilePaths);
 	double dbAudioRate = 1.0;
 
 	sf::Event event;
@@ -274,6 +238,19 @@ int CSfmlSpinePlayer::Display()
 	}
 	return iRet;
 }
+
+void CSfmlSpinePlayer::ClearDrawables()
+{
+	m_drawables.clear();
+	m_atlases.clear();
+	m_skeletonData.clear();
+
+	m_animationNames.clear();
+	m_nAnimationIndex = 0;
+
+	m_audioFilePaths.clear();
+	m_nAudioIndex = 0;
+}
 /*描画器設定*/
 bool CSfmlSpinePlayer::SetupDrawer()
 {
@@ -284,23 +261,24 @@ bool CSfmlSpinePlayer::SetupDrawer()
 	const std::vector<std::string> pmaSelectiveList
 	{ "penis", "tama", "vagina", "manko", "penice", "chin", "ccitsu", "chitsu", "manco", "vibrator", "cover"};
 
-	for (size_t i = 0; i < m_skeletonData.size(); ++i)
+	for (const auto& pSkeletonData : m_skeletonData)
 	{
-		m_drawables.emplace_back(std::make_shared<CSfmlSpineDrawableC>(m_skeletonData.at(i)));
+		const auto pDrawable = std::make_shared<CSfmlSpineDrawableC>(pSkeletonData.get());
+		if (pDrawable.get() == nullptr)continue;
 
-		CSfmlSpineDrawableC* drawable = m_drawables.at(i).get();
-		drawable->timeScale = 1.0f;
-		drawable->skeleton->x = m_fBaseSize.x / 2;
-		drawable->skeleton->y = m_fBaseSize.y / 2;
-		spSkeleton_setToSetupPose(drawable->skeleton);
-		spSkeleton_updateWorldTransform(drawable->skeleton);
+		pDrawable->timeScale = 1.0f;
+		pDrawable->skeleton->x = m_fBaseSize.x / 2;
+		pDrawable->skeleton->y = m_fBaseSize.y / 2;
+		spSkeleton_setToSetupPose(pDrawable->skeleton);
+		spSkeleton_updateWorldTransform(pDrawable->skeleton);
 
-		drawable->SetSelectivePmaList(pmaSelectiveList);
+		m_drawables.push_back(pDrawable);
 
-		for (size_t ii = 0; ii < m_skeletonData.at(i)->animationsCount; ++ii)
+		pDrawable->SetSelectivePmaList(pmaSelectiveList);
+
+		for (size_t i = 0; i < pSkeletonData->animationsCount; ++i)
 		{
-			spAnimation* animation = m_skeletonData.at(i)->animations[ii];
-			std::string strAnimationName = animation->name;
+			const std::string& strAnimationName = pSkeletonData->animations[i]->name;
 			auto iter = std::find(m_animationNames.begin(), m_animationNames.end(), strAnimationName);
 			if (iter == m_animationNames.cend())m_animationNames.push_back(strAnimationName);
 		}
@@ -359,7 +337,7 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 
 				if (pRegionAttachment->x != 0 || pRegionAttachment->y != 0)
 				{
-					spSlotData* pSlotData = spSkeletonData_findSlot(pSkeletonData, attachmentName);
+					spSlotData* pSlotData = spSkeletonData_findSlot(pSkeletonData.get(), attachmentName);
 					if (pSlotData == nullptr)continue;
 
 					for (int i = 0; i < pSkeletonData->bonesCount; ++i)
@@ -380,7 +358,7 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 		{
 			spMeshAttachment* pMeshAttachment = (spMeshAttachment*)pAttachment;
 
-			spSlotData* pSlotData = spSkeletonData_findSlot(pSkeletonData, attachmentName);
+			spSlotData* pSlotData = spSkeletonData_findSlot(pSkeletonData.get(), attachmentName);
 			
 			float fScaleX = pSlotData != nullptr ? pSlotData->boneData->scaleX : 1.f;
 			float fScaleY = pSlotData != nullptr ? pSlotData->boneData->scaleY : 1.f;
@@ -425,7 +403,7 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 
 				if (fCentroid.x != 0 || fCentroid.y != 0)
 				{
-					spSlotData* pSlotData = spSkeletonData_findSlot(pSkeletonData, attachmentName);
+					spSlotData* pSlotData = spSkeletonData_findSlot(pSkeletonData.get(), attachmentName);
 					if (pSlotData == nullptr)continue;
 
 					for (int i = 0; i < pSkeletonData->bonesCount; ++i)

@@ -85,6 +85,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="sfml_spine_c.h" />
     <ClInclude Include="sfml_spine_player.h" />
+    <ClInclude Include="spine_loader_c.h" />
     <ClInclude Include="win_dialogue.h" />
     <ClInclude Include="win_filesystem.h" />
     <ClInclude Include="win_media_player.h" />
@@ -133,6 +134,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sfml_spine_c.cpp" />
     <ClCompile Include="sfml_spine_player.cpp" />
+    <ClCompile Include="spine_loader_c.cpp" />
     <ClCompile Include="win_dialogue.cpp" />
     <ClCompile Include="win_filesystem.cpp" />
     <ClCompile Include="win_media_player.cpp" />

@@ -16,8 +16,8 @@ public:
 	void SetAudios(std::vector<std::wstring>& filePaths);
 	int Display();
 private:
-	std::vector<spAtlas*> m_atlases;
-	std::vector<spSkeletonData*> m_skeletonData;
+	std::vector<std::shared_ptr<spAtlas>> m_atlases;
+	std::vector<std::shared_ptr<spSkeletonData>> m_skeletonData;
 	std::vector<std::shared_ptr<CSfmlSpineDrawableC>> m_drawables;
 
 	std::unique_ptr<sf::RenderWindow> m_window;
@@ -35,10 +35,12 @@ private:
 	std::vector<std::string> m_animationNames;
 	size_t m_nAnimationIndex = 0;
 
-	std::vector<std::wstring> m_audio_files;
+	std::vector<std::wstring> m_audioFilePaths;
 	size_t m_nAudioIndex = 0;
 
+	void ClearDrawables();
 	bool SetupDrawer();
+
 	void WorkOutDefualtSize();
 	void WorkOutDefaultScale();
 
