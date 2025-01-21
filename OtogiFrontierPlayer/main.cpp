@@ -5,6 +5,8 @@
 #define NOMINMAX
 #include <windows.h>
 
+#include <locale.h>
+
 #include "win_dialogue.h"
 #include "win_filesystem.h"
 #include "win_text.h"
@@ -27,11 +29,11 @@ void GetSpineList(const std::wstring& wstrFolderPath, std::vector<std::string>& 
 
         if (filePath.rfind(L".atlas") != std::wstring::npos)
         {
-            atlasPaths.push_back(win_text::NarrowANSI(filePath));
+            atlasPaths.push_back(win_text::NarrowUtf8(filePath));
         }
         else
         {
-            skelPaths.push_back(win_text::NarrowANSI(filePath));
+            skelPaths.push_back(win_text::NarrowUtf8(filePath));
         }
     }
 }
@@ -96,18 +98,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPWSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
+    setlocale(LC_ALL, ".utf8");
 
     std::wstring wstrPickedFolder = win_dialogue::SelectWorkFolder();
     if (!wstrPickedFolder.empty())
     {
-        std::vector<std::wstring> folders;
+        CSfmlSpinePlayer SfmlPlayer;
+
+        std::vector<std::wstring> folderPaths;
         size_t nFolderIndex = 0;
-        GetFolderList(wstrPickedFolder, folders, &nFolderIndex);
+        GetFolderList(wstrPickedFolder, folderPaths, &nFolderIndex);
         for (;;)
         {
-            std::wstring wstrFolderPath = folders.at(nFolderIndex);
+            std::wstring wstrFolderPath = folderPaths[nFolderIndex];
 
             std::vector<std::string> atlasPaths;
             std::vector<std::string> skelPaths;
@@ -120,7 +123,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             std::vector<std::wstring> audioFilePaths;
             win_filesystem::CreateFilePathList(wstrAudioFolderPath.c_str(), L".m4a", audioFilePaths);
 
-            CSfmlSpinePlayer SfmlPlayer;
             bool bRet = SfmlPlayer.SetSpine(atlasPaths, skelPaths, skelPaths.at(0).rfind(".skel") != std::string::npos);
             if (!bRet)break;
 
@@ -130,12 +132,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             if (iRet == 1)
             {
                 ++nFolderIndex;
-                if (nFolderIndex > folders.size() - 1)nFolderIndex = 0;
+                if (nFolderIndex > folderPaths.size() - 1)nFolderIndex = 0;
             }
             else if (iRet == 2)
             {
                 --nFolderIndex;
-                if (nFolderIndex > folders.size() - 1)nFolderIndex = folders.size() - 1;
+                if (nFolderIndex > folderPaths.size() - 1)nFolderIndex = folderPaths.size() - 1;
             }
             else
             {
