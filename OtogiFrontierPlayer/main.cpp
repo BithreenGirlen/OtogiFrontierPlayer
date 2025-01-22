@@ -104,6 +104,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     if (!wstrPickedFolder.empty())
     {
         CSfmlSpinePlayer SfmlPlayer;
+        SfmlPlayer.SetFont("C:\\Windows\\Fonts\\yumindb.ttf", true, true);
 
         std::vector<std::wstring> folderPaths;
         size_t nFolderIndex = 0;
@@ -117,16 +118,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             GetSpineList(wstrFolderPath, atlasPaths, skelPaths);
             if (skelPaths.empty())break;
 
+            bool bRet = SfmlPlayer.SetSpine(atlasPaths, skelPaths, skelPaths.at(0).rfind(".skel") != std::string::npos);
+            if (!bRet)break;
+
             std::wstring wstrAudioFolderPath;
             GetAudioFolderPathFromAtlasFolderPath(wstrFolderPath, wstrAudioFolderPath);
 
             std::vector<std::wstring> audioFilePaths;
             win_filesystem::CreateFilePathList(wstrAudioFolderPath.c_str(), L".m4a", audioFilePaths);
-
-            bool bRet = SfmlPlayer.SetSpine(atlasPaths, skelPaths, skelPaths.at(0).rfind(".skel") != std::string::npos);
-            if (!bRet)break;
-
-            SfmlPlayer.SetAudios(audioFilePaths);
+            SfmlPlayer.SetAudioFiles(audioFilePaths);
 
             int iRet = SfmlPlayer.Display();
             if (iRet == 1)

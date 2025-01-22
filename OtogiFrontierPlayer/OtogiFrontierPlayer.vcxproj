@@ -82,13 +82,13 @@
   <ItemGroup>
     <ClInclude Include="deps\spine-c-3.6\src\spine\Json.h" />
     <ClInclude Include="deps\spine-c-3.6\src\spine\kvec.h" />
+    <ClInclude Include="mf_media_player.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="sfml_spine_c.h" />
     <ClInclude Include="sfml_spine_player.h" />
     <ClInclude Include="spine_loader_c.h" />
     <ClInclude Include="win_dialogue.h" />
     <ClInclude Include="win_filesystem.h" />
-    <ClInclude Include="win_media_player.h" />
     <ClInclude Include="win_text.h" />
   </ItemGroup>
   <ItemGroup>
@@ -132,12 +132,12 @@
     <ClCompile Include="deps\spine-c-3.6\src\spine\VertexAttachment.c" />
     <ClCompile Include="deps\spine-c-3.6\src\spine\VertexEffect.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mf_media_player.cpp" />
     <ClCompile Include="sfml_spine_c.cpp" />
     <ClCompile Include="sfml_spine_player.cpp" />
     <ClCompile Include="spine_loader_c.cpp" />
     <ClCompile Include="win_dialogue.cpp" />
     <ClCompile Include="win_filesystem.cpp" />
-    <ClCompile Include="win_media_player.cpp" />
     <ClCompile Include="win_text.cpp" />
   </ItemGroup>
   <ItemGroup>

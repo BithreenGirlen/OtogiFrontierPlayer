@@ -6,14 +6,19 @@
 #include <SFML/Graphics.hpp>
 
 #include "sfml_spine_c.h"
+#include "mf_media_player.h"
 
 class CSfmlSpinePlayer
 {
 public:
 	CSfmlSpinePlayer();
 	~CSfmlSpinePlayer();
+
 	bool SetSpine(const std::vector<std::string>& atlasPaths, const std::vector<std::string>& skelPaths, bool bIsBinary);
-	void SetAudios(std::vector<std::wstring>& filePaths);
+
+	bool SetFont(const std::string& strFilePath, bool bBold, bool bItalic);
+	void SetAudioFiles(const std::vector<std::wstring> &wstrAudioFilePaths);
+
 	int Display();
 private:
 	std::vector<std::shared_ptr<spAtlas>> m_atlases;
@@ -35,9 +40,6 @@ private:
 	std::vector<std::string> m_animationNames;
 	size_t m_nAnimationIndex = 0;
 
-	std::vector<std::wstring> m_audioFilePaths;
-	size_t m_nAudioIndex = 0;
-
 	void ClearDrawables();
 	bool SetupDrawer();
 
@@ -53,6 +55,21 @@ private:
 	void ShiftAnimation();
 
 	void Redraw(float fDelta);
+
+	std::vector<std::wstring> m_audioFilePaths;
+	size_t m_nAudioIndex = 0;
+
+	std::unique_ptr<CMfMediaPlayer> m_pAudioPlayer;
+
+	void StepOnTrack(bool bForward = true);
+	void UpdateTrack();
+	void ChangePlaybackRate(bool bFaster);
+
+	sf::Font m_trackFont;
+	sf::Text m_trackText;
+	bool m_bTrackHidden = false;
+
+	void ToggleTextColor();
 };
 
 #endif // SFML_SPINE_PLAYER_H_

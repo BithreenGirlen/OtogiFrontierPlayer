@@ -1,5 +1,6 @@
 
 #include "sfml_spine_player.h"
+#include "spine_loader_c.h"
 
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "winmm.lib")
@@ -13,9 +14,6 @@
 #pragma comment(lib, "sfml-graphics.lib")
 #pragma comment(lib, "sfml-window.lib")
 #endif // _DEBUG
-
-#include "spine_loader_c.h"
-#include "win_media_player.h"
 
 
 CSfmlSpinePlayer::CSfmlSpinePlayer()
@@ -55,29 +53,53 @@ bool CSfmlSpinePlayer::SetSpine(const std::vector<std::string>& atlasPaths, cons
 
 	return SetupDrawer();
 }
-/*音声ファイル設定*/
-void CSfmlSpinePlayer::SetAudios(std::vector<std::wstring>& filePaths)
+/*字体ファイル設定*/
+bool CSfmlSpinePlayer::SetFont(const std::string& strFilePath, bool bBold, bool bItalic)
 {
-	m_audioFilePaths = filePaths;
+	bool bRet = m_trackFont.loadFromFile(strFilePath);
+	if (!bRet)
+	{
+		bRet = m_trackFont.loadFromFile("C:\\Windows\\Fonts\\arialnb.ttf");
+		if (!bRet)return false;
+	}
+
+	constexpr float fOutLineThickness = 2.4f;
+
+	m_trackText.setFont(m_trackFont);
+	m_trackText.setFillColor(sf::Color::Black);
+	m_trackText.setStyle((bBold ? sf::Text::Style::Bold : 0) | (bItalic ? sf::Text::Style::Italic : 0));
+	m_trackText.setOutlineThickness(fOutLineThickness);
+	m_trackText.setOutlineColor(sf::Color::White);
+
+	return true;
 }
+/*音声ファイル設定*/
+void CSfmlSpinePlayer::SetAudioFiles(const std::vector<std::wstring> &wstrAudioFilePaths)
+{
+	m_audioFilePaths = wstrAudioFilePaths;
+	m_nAudioIndex = 0;
+
+	m_trackText.setString("");
+
+	/*The media player is based on Microsoft Media Foundation because SFML does not support .m4a file.*/
+	m_pAudioPlayer = std::make_unique<CMfMediaPlayer>();
+}
+
 /*ウィンドウ表示*/
 int CSfmlSpinePlayer::Display()
 {
-	sf::Vector2i iMouseStartPos;
-
-	bool bOnWindowMove = false;
-	bool bSpeedHavingChanged = false;
-
 	int iRet = 0;
 	m_window = std::make_unique< sf::RenderWindow>(sf::VideoMode(static_cast<unsigned int>(m_fBaseSize.x), static_cast<unsigned int>(m_fBaseSize.y)), "Otogi spine player", sf::Style::None);
 	m_window->setPosition(sf::Vector2i(0, 0));
 	m_window->setFramerateLimit(0);
-	ResetScale();
 
-	/*The media player is based on Microsoft Media Foundation because SFML does not support .m4a file.*/
-	std::unique_ptr<CMediaPlayer> pMediaPlayer = std::make_unique<CMediaPlayer>(m_window->getSystemHandle());
-	pMediaPlayer->SetFiles(m_audioFilePaths);
-	double dbAudioRate = 1.0;
+	ResetScale();
+	UpdateTrack();
+
+	sf::Vector2i iMouseStartPos;
+
+	bool bOnWindowMove = false;
+	bool bSpeedHavingChanged = false;
 
 	sf::Event event;
 	sf::Clock deltaClock;
@@ -149,17 +171,7 @@ int CSfmlSpinePlayer::Display()
 				else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 				{
 					/*音声送り・戻し*/
-					if (pMediaPlayer.get() != nullptr)
-					{
-						if (event.mouseWheelScroll.delta < 0)
-						{
-							pMediaPlayer->Next();
-						}
-						else
-						{
-							pMediaPlayer->Back();
-						}
-					}
+					StepOnTrack(event.mouseWheelScroll.delta < 0);
 				}
 				else
 				{
@@ -179,6 +191,9 @@ int CSfmlSpinePlayer::Display()
 			case sf::Event::KeyReleased:
 				switch (event.key.code)
 				{
+				case sf::Keyboard::Key::C:
+					ToggleTextColor();
+					break;
 				case sf::Keyboard::Key::D:
 					m_bFDefaultOffSetEnabled ^= true;
 					ResetScale();
@@ -189,26 +204,23 @@ int CSfmlSpinePlayer::Display()
 						m_drawables.at(i).get()->SwitchSelectivePma();
 					}
 					break;
+				case sf::Keyboard::Key::T:
+					m_bTrackHidden ^= true;
+					break;
 				case sf::Keyboard::Key::Escape:
 					m_window->close();
 					break;
 				case sf::Keyboard::Key::PageUp:
-					if (dbAudioRate < 2.41)
-					{
-						dbAudioRate += 0.1;
-					}
-					if (pMediaPlayer.get() != nullptr)pMediaPlayer->SetCurrentRate(dbAudioRate);
+					ChangePlaybackRate(true);
 					break;
 				case sf::Keyboard::Key::PageDown:
-					if (dbAudioRate > 0.59)
-					{
-						dbAudioRate -= 0.1;
-					}
-					if (pMediaPlayer.get() != nullptr)pMediaPlayer->SetCurrentRate(dbAudioRate);
+					ChangePlaybackRate(false);
 					break;
 				case sf::Keyboard::Key::Home:
-					dbAudioRate = 1.0;
-					if (pMediaPlayer.get() != nullptr)pMediaPlayer->SetCurrentRate(dbAudioRate);
+					if (m_pAudioPlayer.get() != nullptr)
+					{
+						m_pAudioPlayer->SetCurrentRate(1.0);
+					}
 					break;
 				case sf::Keyboard::Key::Up:
 					iRet = 2;
@@ -229,6 +241,14 @@ int CSfmlSpinePlayer::Display()
 		deltaClock.restart();
 		Redraw(delta);
 
+		if (m_pAudioPlayer.get() != nullptr && m_pAudioPlayer->IsEnded())
+		{
+			if (m_nAudioIndex < m_audioFilePaths.size() - 1)
+			{
+				StepOnTrack();
+			}
+		}
+
 		if (bOnWindowMove)
 		{
 			int iPosX = sf::Mouse::getPosition().x - m_window->getSize().x / 2;
@@ -247,9 +267,6 @@ void CSfmlSpinePlayer::ClearDrawables()
 
 	m_animationNames.clear();
 	m_nAnimationIndex = 0;
-
-	m_audioFilePaths.clear();
-	m_nAudioIndex = 0;
 }
 /*描画器設定*/
 bool CSfmlSpinePlayer::SetupDrawer()
@@ -518,6 +535,83 @@ void CSfmlSpinePlayer::Redraw(float fDelta)
 			m_drawables.at(i).get()->Update(fDelta);
 			m_window->draw(*m_drawables.at(i).get(), sf::RenderStates(sf::BlendAlpha));
 		}
+
+		if (!m_bTrackHidden)
+		{
+			m_window->draw(m_trackText);
+		}
+
 		m_window->display();
 	}
+}
+/*音声送り・戻し*/
+void CSfmlSpinePlayer::StepOnTrack(bool bForward)
+{
+	if (bForward)
+	{
+		++m_nAudioIndex;
+		if (m_nAudioIndex >= m_audioFilePaths.size())
+		{
+			m_nAudioIndex = 0;
+		}
+	}
+	else
+	{
+		--m_nAudioIndex;
+		if (m_nAudioIndex >= m_audioFilePaths.size())
+		{
+			m_nAudioIndex = m_audioFilePaths.size() - 1;
+		}
+	}
+
+	UpdateTrack();
+}
+/*再生音声更新*/
+void CSfmlSpinePlayer::UpdateTrack()
+{
+	if (m_nAudioIndex >= m_audioFilePaths.size() || m_pAudioPlayer.get() == nullptr)
+	{
+		m_trackText.setString("");
+		return;
+	}
+
+	m_pAudioPlayer->Play(m_audioFilePaths[m_nAudioIndex].c_str());
+
+	std::string str = std::to_string(m_nAudioIndex + 1) + "/" + std::to_string(m_audioFilePaths.size());
+	m_trackText.setString(str);
+}
+/*音声再生速度変更*/
+void CSfmlSpinePlayer::ChangePlaybackRate(bool bFaster)
+{
+	if (m_pAudioPlayer.get() == nullptr)return;
+
+	constexpr double dbRatePortion = 0.1;
+	constexpr double dbMaxRate = 2.5;
+	constexpr double dbMinRate = 0.5;
+
+	double dbPlaybackRate = m_pAudioPlayer->GetCurrentRate();
+	if (bFaster)
+	{
+		dbPlaybackRate += dbRatePortion;
+		if (dbPlaybackRate > dbMaxRate)
+		{
+			dbPlaybackRate = dbMaxRate;
+		}
+	}
+	else
+	{
+		dbPlaybackRate -= dbPlaybackRate;
+		if (dbPlaybackRate < dbMinRate)
+		{
+			dbPlaybackRate = dbMinRate;
+		}
+	}
+
+	m_pAudioPlayer->SetCurrentRate(dbPlaybackRate);
+}
+/*文字色切り替え*/
+void CSfmlSpinePlayer::ToggleTextColor()
+{
+	m_trackText.setFillColor(m_trackText.getFillColor() == sf::Color::Black ? sf::Color::White : sf::Color::Black);
+	m_trackText.setOutlineColor(m_trackText.getFillColor() == sf::Color::Black ? sf::Color::White : sf::Color::Black);
 }
