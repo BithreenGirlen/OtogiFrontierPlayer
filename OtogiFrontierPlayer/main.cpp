@@ -38,27 +38,6 @@ void GetSpineList(const std::wstring& wstrFolderPath, std::vector<std::string>& 
     }
 }
 
-void GetFolderList(const std::wstring& wstrFolderPath, std::vector<std::wstring>& folders, size_t* nIndex)
-{
-    std::wstring wstrParent;
-    std::wstring wstrCurrent;
-
-    size_t nPos = wstrFolderPath.find_last_of(L"\\/");
-    if (nPos != std::wstring::npos)
-    {
-        wstrParent = wstrFolderPath.substr(0, nPos);
-        wstrCurrent = wstrFolderPath.substr(nPos + 1);
-    }
-
-    win_filesystem::CreateFilePathList(wstrParent.c_str(), nullptr, folders);
-
-    auto iter = std::find(folders.begin(), folders.end(), wstrFolderPath);
-    if (iter != folders.end())
-    {
-        *nIndex = std::distance(folders.begin(), iter);
-    }
-}
-
 bool GetAudioFolderPathFromAtlasFolderPath(const std::wstring& wstrAtlasFolderPath, std::wstring& wstrAudioFolderPath)
 {
     /*
@@ -89,7 +68,7 @@ bool GetAudioFolderPathFromAtlasFolderPath(const std::wstring& wstrAtlasFolderPa
     if (iter == folders.end())return false;
     size_t nIndex = std::distance(folders.begin(), iter);
 
-    wstrAudioFolderPath = folders.at(nIndex);
+    wstrAudioFolderPath = folders[nIndex];
     return true;
 }
 
@@ -108,7 +87,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         std::vector<std::wstring> folderPaths;
         size_t nFolderIndex = 0;
-        GetFolderList(wstrPickedFolder, folderPaths, &nFolderIndex);
+        win_filesystem::GetFilePathListAndIndex(wstrPickedFolder, nullptr, folderPaths, &nFolderIndex);
         for (;;)
         {
             std::wstring wstrFolderPath = folderPaths[nFolderIndex];
@@ -118,7 +97,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             GetSpineList(wstrFolderPath, atlasPaths, skelPaths);
             if (skelPaths.empty())break;
 
-            bool bRet = SfmlPlayer.SetSpine(atlasPaths, skelPaths, skelPaths.at(0).rfind(".skel") != std::string::npos);
+            bool bRet = SfmlPlayer.SetSpine(atlasPaths, skelPaths, skelPaths[0].rfind(".skel") != std::string::npos);
             if (!bRet)break;
 
             std::wstring wstrAudioFolderPath;

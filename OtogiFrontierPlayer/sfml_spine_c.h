@@ -15,12 +15,15 @@ public:
 	float timeScale = 1.f;
 
 	void Update(float fDelta);
-	/*virtual function from sf::Drawable*/
 	virtual void draw(sf::RenderTarget& renderTarget, sf::RenderStates renderStates) const;
-	//void SwitchPma(){ m_bAlphaPremultiplied ^= true; };
+
 	/*<string> and <vector> are included somewhere in SFML headers*/
 	void SetSelectivePmaList(const std::vector<std::string>& list) { m_PmaSelectiveList = list; }
-	void SwitchSelectivePma() { m_bSelectivePma ^= true; }
+
+	void SetSelectivePma(bool bEnabled) { m_bSelectivePma = bEnabled; }
+	bool GetSelectivePma()const { return m_bSelectivePma; }
+
+	sf::FloatRect GetBoundingBox();
 private:
 	bool m_bHasOwnAnimationStateData = false;
 	mutable bool m_bAlphaPremultiplied = true;

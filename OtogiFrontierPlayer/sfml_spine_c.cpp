@@ -255,6 +255,59 @@ void CSfmlSpineDrawableC::draw(sf::RenderTarget& renderTarget, sf::RenderStates 
 	spSkeletonClipping_clipEnd2(m_clipper);
 }
 
+sf::FloatRect CSfmlSpineDrawableC::GetBoundingBox()
+{
+	float fMinX = FLT_MAX;
+	float fMinY = FLT_MAX;
+	float fMaxX = -FLT_MAX;
+	float fMaxY = -FLT_MAX;
+
+	spFloatArray* pTempVertices = spFloatArray_create(128);
+
+	for (int i = 0; i < skeleton->slotsCount; ++i)
+	{
+		spSlot* pSlot = skeleton->drawOrder[i];
+		spAttachment* pAttachment = pSlot->attachment;
+
+		if (pAttachment == nullptr)continue;
+
+		if (pAttachment->type == SP_ATTACHMENT_REGION)
+		{
+			spRegionAttachment* pRegionAttachment = (spRegionAttachment*)pAttachment;
+
+			spFloatArray_setSize(pTempVertices, 8);
+			spRegionAttachment_computeWorldVertices(pRegionAttachment, pSlot->bone, pTempVertices->items, 0, 2);
+
+		}
+		else if (pAttachment->type == SP_ATTACHMENT_MESH)
+		{
+			spMeshAttachment* pMeshAttachment = (spMeshAttachment*)pAttachment;
+
+			spFloatArray_setSize(pTempVertices, pMeshAttachment->super.worldVerticesLength);
+			spVertexAttachment_computeWorldVertices(SUPER(pMeshAttachment), pSlot, 0, pMeshAttachment->super.worldVerticesLength, pTempVertices->items, 0, 2);
+		}
+		else
+		{
+			continue;
+		}
+
+		for (size_t i = 0; i < pTempVertices->size; i += 2)
+		{
+			float fX = pTempVertices->items[i];
+			float fY = pTempVertices->items[i + 1LL];
+
+			fMinX = fMinX < fX ? fMinX : fX;
+			fMinY = fMinY < fY ? fMinY : fY;
+			fMaxX = fMaxX > fX ? fMaxX : fX;
+			fMaxY = fMaxY > fY ? fMaxY : fY;
+		}
+	}
+
+	if(pTempVertices != nullptr)spFloatArray_dispose(pTempVertices);
+
+	return sf::FloatRect{ fMinX, fMinY, fMaxX, fMaxY };
+}
+
 bool CSfmlSpineDrawableC::IsPmaForciblyDisabled(const char* const szSlotName) const
 {
 	if (m_bSelectivePma)

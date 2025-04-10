@@ -30,8 +30,11 @@ private:
 	sf::Vector2f m_fBaseSize = sf::Vector2f{ 1920.f, 1080.f };
 	float m_fDefaultScale = 1.f;
 	float m_fThresholdScale = 1.f;
-	sf::Vector2f m_fDefaultOffset{};
-	bool m_bFDefaultOffSetEnabled= false;
+	sf::Vector2f m_DefaultScaleOffset{};
+	sf::Vector2f m_fDefaultPosOffset{};
+
+	bool m_bDefaultOffSetEnabled = false;
+	bool m_bSelectivePmaEnabled = false;
 
 	float m_fTimeScale = 1.f;
 	float m_fSkeletonScale = 1.f;
@@ -55,6 +58,8 @@ private:
 	void ShiftAnimation();
 
 	void Redraw(float fDelta);
+
+	sf::FloatRect GetBoundingBox();
 
 	std::vector<std::wstring> m_audioFilePaths;
 	size_t m_nAudioIndex = 0;

@@ -18,7 +18,10 @@
 
 CSfmlSpinePlayer::CSfmlSpinePlayer()
 {
+	m_window = std::make_unique<sf::RenderWindow>(sf::VideoMode(200, 200), "Otogi spine player", sf::Style::None);
 
+	m_window->setPosition(sf::Vector2i(0, 0));
+	m_window->setFramerateLimit(0);
 }
 
 CSfmlSpinePlayer::~CSfmlSpinePlayer()
@@ -33,8 +36,8 @@ bool CSfmlSpinePlayer::SetSpine(const std::vector<std::string>& atlasPaths, cons
 
 	for (size_t i = 0; i < atlasPaths.size(); ++i)
 	{
-		const std::string& strAtlasPath = atlasPaths.at(i);
-		const std::string& strSkeletonPath = skelPaths.at(i);
+		const std::string& strAtlasPath = atlasPaths[i];
+		const std::string& strSkeletonPath = skelPaths[i];
 
 		std::shared_ptr<spAtlas> atlas = spine_loader_c::CreateAtlasFromFile(strAtlasPath.c_str(), nullptr);
 		if (atlas.get() == nullptr)continue;
@@ -88,21 +91,19 @@ void CSfmlSpinePlayer::SetAudioFiles(const std::vector<std::wstring> &wstrAudioF
 /*ウィンドウ表示*/
 int CSfmlSpinePlayer::Display()
 {
-	int iRet = 0;
-	m_window = std::make_unique< sf::RenderWindow>(sf::VideoMode(static_cast<unsigned int>(m_fBaseSize.x), static_cast<unsigned int>(m_fBaseSize.y)), "Otogi spine player", sf::Style::None);
-	m_window->setPosition(sf::Vector2i(0, 0));
-	m_window->setFramerateLimit(0);
-
 	ResetScale();
 	UpdateTrack();
+
+	m_window->setView(sf::View((m_fBaseSize * m_fSkeletonScale) / 2.f, m_fBaseSize * m_fSkeletonScale));
 
 	sf::Vector2i iMouseStartPos;
 
 	bool bOnWindowMove = false;
-	bool bSpeedHavingChanged = false;
+	bool bLeftDowned = false;
+	bool bLeftCombinated = false;
 
 	sf::Event event;
-	sf::Clock deltaClock;
+	sf::Clock spineClock;
 	while (m_window->isOpen())
 	{
 		while (m_window->pollEvent(event))
@@ -117,15 +118,18 @@ int CSfmlSpinePlayer::Display()
 				{
 					iMouseStartPos.x = event.mouseButton.x;
 					iMouseStartPos.y = event.mouseButton.y;
+
+					bLeftDowned = true;
 				}
 				break;
 			case sf::Event::MouseButtonReleased:
 				if (event.mouseButton.button == sf::Mouse::Left)
 				{
 					/*速度変更完了*/
-					if (bSpeedHavingChanged)
+					if (bLeftCombinated)
 					{
-						bSpeedHavingChanged = false;
+						bLeftCombinated = false;
+						bLeftDowned = false;
 						break;
 					}
 
@@ -143,14 +147,28 @@ int CSfmlSpinePlayer::Display()
 					{
 						ShiftAnimation();
 					}
-					else
-					{
-						MoveViewPoint(iX, iY);
-					}
+
+					bLeftDowned = false;
 				}
-				if (event.mouseButton.button == sf::Mouse::Middle)
+				else if (event.mouseButton.button == sf::Mouse::Middle)
 				{
 					ResetScale();
+				}
+				break;
+			case sf::Event::MouseMoved:
+				if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+				{
+					if (bLeftDowned)
+					{
+						int iX = iMouseStartPos.x - event.mouseMove.x;
+						int iY = iMouseStartPos.y - event.mouseMove.y;
+						MoveViewPoint(iX, iY);
+
+						iMouseStartPos.x = event.mouseMove.x;
+						iMouseStartPos.y = event.mouseMove.y;
+
+						bLeftCombinated = true;
+					}
 				}
 				break;
 			case sf::Event::MouseWheelScrolled:
@@ -166,7 +184,7 @@ int CSfmlSpinePlayer::Display()
 						m_fTimeScale -= 0.05f;
 					}
 					RescaleTime();
-					bSpeedHavingChanged = true;
+					bLeftCombinated = true;
 				}
 				else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 				{
@@ -195,13 +213,14 @@ int CSfmlSpinePlayer::Display()
 					ToggleTextColor();
 					break;
 				case sf::Keyboard::Key::D:
-					m_bFDefaultOffSetEnabled ^= true;
+					m_bDefaultOffSetEnabled ^= true;
 					ResetScale();
 					break;
 				case sf::Keyboard::Key::S:
-					for (size_t i = 0; i < m_drawables.size(); ++i)
+					m_bSelectivePmaEnabled ^= true;
+					for (const auto& drawable : m_drawables)
 					{
-						m_drawables.at(i).get()->SwitchSelectivePma();
+						drawable->SetSelectivePma(m_bSelectivePmaEnabled);
 					}
 					break;
 				case sf::Keyboard::Key::T:
@@ -223,13 +242,9 @@ int CSfmlSpinePlayer::Display()
 					}
 					break;
 				case sf::Keyboard::Key::Up:
-					iRet = 2;
-					m_window->close();
-					break;
+					return 2;
 				case sf::Keyboard::Key::Down:
-					iRet = 1;
-					m_window->close();
-					break;
+					return 1;
 				default:
 					break;
 				}
@@ -237,8 +252,8 @@ int CSfmlSpinePlayer::Display()
 			}
 		}
 
-		float delta = deltaClock.getElapsedTime().asSeconds();
-		deltaClock.restart();
+		float delta = spineClock.getElapsedTime().asSeconds();
+		spineClock.restart();
 		Redraw(delta);
 
 		if (m_pAudioPlayer.get() != nullptr && m_pAudioPlayer->IsEnded())
@@ -256,7 +271,7 @@ int CSfmlSpinePlayer::Display()
 			m_window->setPosition(sf::Vector2i(iPosX, iPosY));
 		}
 	}
-	return iRet;
+	return 0;
 }
 
 void CSfmlSpinePlayer::ClearDrawables()
@@ -303,10 +318,15 @@ bool CSfmlSpinePlayer::SetupDrawer()
 
 	if (!m_animationNames.empty())
 	{
-		for (size_t i = 0; i < m_skeletonData.size(); ++i)
+		for (const auto& drawble : m_drawables)
 		{
-			spAnimationState_setAnimationByName(m_drawables.at(i).get()->animationState, 0, m_animationNames.at(0).c_str(), true);
+			spAnimationState_setAnimationByName(drawble->animationState, 0, m_animationNames[0].c_str(), true);
 		}
+	}
+
+	for (const auto& drawable : m_drawables)
+	{
+		drawable->SetSelectivePma(m_bSelectivePmaEnabled);
 	}
 
 	return m_animationNames.size() > 0;
@@ -316,6 +336,7 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 {
 	if (m_skeletonData.empty())return;
 
+	m_fDefaultPosOffset = sf::Vector2f();
 	float fMaxSize = 0.f;
 	const auto CompareDimention = [this, &fMaxSize](float fWidth, float fHeight)
 		-> bool
@@ -349,8 +370,8 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 			bool bRet = CompareDimention(pRegionAttachment->width * pRegionAttachment->scaleX, pRegionAttachment->height * pRegionAttachment->scaleY);
 			if (bRet)
 			{
-				m_fDefaultOffset.x = pRegionAttachment->x * 2.f;
-				m_fDefaultOffset.y = -pRegionAttachment->y * 2.f;
+				m_fDefaultPosOffset.x = pRegionAttachment->x;
+				m_fDefaultPosOffset.y = -pRegionAttachment->y;
 
 				if (pRegionAttachment->x != 0 || pRegionAttachment->y != 0)
 				{
@@ -363,7 +384,7 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 						{
 							if (pRegionAttachment->y * pSkeletonData->bones[i]->y <= 0)
 							{
-								m_fDefaultOffset.y -= pSkeletonData->bones[i]->y * 2.f;
+								m_fDefaultPosOffset.y -= pSkeletonData->bones[i]->y;
 							}
 							break;
 						}
@@ -415,8 +436,8 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 
 				sf::Vector2f fCentroid = WorkoutCentroid();
 
-				m_fDefaultOffset.x = fCentroid.x * 2.f;
-				m_fDefaultOffset.y = -fCentroid.y * 2.f;
+				m_fDefaultPosOffset.x = fCentroid.x;
+				m_fDefaultPosOffset.y = -fCentroid.y;
 
 				if (fCentroid.x != 0 || fCentroid.y != 0)
 				{
@@ -427,7 +448,7 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 					{
 						if (strcmp(pSlotData->boneData->name, pSkeletonData->bones[i]->name) == 0)
 						{
-							m_fDefaultOffset.y -= pSkeletonData->bones[i]->y * 2.f;
+							m_fDefaultPosOffset.y -= pSkeletonData->bones[i]->y * 2.f;
 							break;
 						}
 					}
@@ -444,6 +465,10 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 /*標準尺度算出*/
 void CSfmlSpinePlayer::WorkOutDefaultScale()
 {
+	m_fDefaultScale = 1.f;
+	m_fThresholdScale = 1.f;
+	m_DefaultScaleOffset = sf::Vector2f{};
+
 	unsigned int uiSkeletonWidth = static_cast<unsigned int>(m_fBaseSize.x);
 	unsigned int uiSkeletonHeight = static_cast<unsigned int>(m_fBaseSize.y);
 
@@ -452,15 +477,24 @@ void CSfmlSpinePlayer::WorkOutDefaultScale()
 
 	if (uiSkeletonWidth > uiDesktopWidth || uiSkeletonHeight > uiDesktopHeight)
 	{
+		float fScaleX = static_cast<float>(uiDesktopWidth) / uiSkeletonWidth;
+		float fScaleY = static_cast<float>(uiDesktopHeight) / uiSkeletonHeight;
+
 		if (uiDesktopWidth > uiDesktopHeight)
 		{
 			m_fDefaultScale = static_cast<float>(uiDesktopHeight) / uiSkeletonHeight;
 			m_fThresholdScale = static_cast<float>(uiDesktopWidth) / uiSkeletonWidth;
+
+			m_DefaultScaleOffset.x = uiSkeletonWidth > uiDesktopWidth ? (uiSkeletonWidth * (1 - fScaleY)) / 2.f : 0.f;
+			m_DefaultScaleOffset.y = uiSkeletonHeight > uiDesktopHeight ? (uiSkeletonHeight - uiDesktopHeight) / 2.f : 0.f;
 		}
 		else
 		{
 			m_fDefaultScale = static_cast<float>(uiDesktopWidth) / uiSkeletonWidth;
 			m_fThresholdScale = static_cast<float>(uiDesktopHeight) / uiSkeletonHeight;
+
+			m_DefaultScaleOffset.x = uiSkeletonWidth > uiDesktopWidth ? (uiSkeletonWidth - uiDesktopWidth) / 2.f : 0.f;
+			m_DefaultScaleOffset.y = uiSkeletonHeight > uiDesktopHeight ? (uiSkeletonHeight * (1 - fScaleX)) / 2.f : 0.f;
 		}
 		m_fSkeletonScale = m_fDefaultScale;
 	}
@@ -480,7 +514,7 @@ void CSfmlSpinePlayer::RescaleTime()
 	if (m_fTimeScale < 0.f)m_fTimeScale = 0.f;
 	for (size_t i = 0; i < m_drawables.size(); ++i)
 	{
-		m_drawables.at(i).get()->timeScale = m_fTimeScale;
+		m_drawables[i].get()->timeScale = m_fTimeScale;
 	}
 }
 /*速度・尺度・視点初期化*/
@@ -488,7 +522,7 @@ void CSfmlSpinePlayer::ResetScale()
 {
 	m_fTimeScale = 1.0f;
 	m_fSkeletonScale = m_fDefaultScale;
-	m_fOffset = m_bFDefaultOffSetEnabled ? m_fDefaultOffset : sf::Vector2f{};
+	m_fOffset = m_bDefaultOffSetEnabled ? m_fDefaultPosOffset : sf::Vector2f{};
 
 	RescaleSkeleton();
 	RescaleTime();
@@ -508,10 +542,10 @@ void CSfmlSpinePlayer::MoveViewPoint(int iX, int iY)
 {
 	m_fOffset.x += iX;
 	m_fOffset.y += iY;
-	for (size_t i = 0; i < m_drawables.size(); ++i)
+	for (const auto& drawable : m_drawables)
 	{
-		m_drawables.at(i)->skeleton->x = (m_fBaseSize.x - m_fOffset.x) / 2;
-		m_drawables.at(i)->skeleton->y = (m_fBaseSize.y - m_fOffset.y) / 2;
+		drawable->skeleton->x = m_fBaseSize.x / 2 - m_fOffset.x - m_DefaultScaleOffset.x;
+		drawable->skeleton->y = m_fBaseSize.y / 2 - m_fOffset.y - m_DefaultScaleOffset.y;
 	}
 }
 /*動作移行*/
@@ -521,7 +555,7 @@ void CSfmlSpinePlayer::ShiftAnimation()
 	if (m_nAnimationIndex > m_animationNames.size() - 1)m_nAnimationIndex = 0;
 	for (size_t i = 0; i < m_drawables.size(); ++i)
 	{
-		spAnimationState_setAnimationByName(m_drawables.at(i).get()->animationState, 0, m_animationNames.at(m_nAnimationIndex).c_str(), true);
+		spAnimationState_setAnimationByName(m_drawables[i].get()->animationState, 0, m_animationNames.at(m_nAnimationIndex).c_str(), true);
 	}
 }
 /*再描画*/
@@ -532,8 +566,8 @@ void CSfmlSpinePlayer::Redraw(float fDelta)
 		m_window->clear();
 		for (size_t i = 0; i < m_drawables.size(); ++i)
 		{
-			m_drawables.at(i).get()->Update(fDelta);
-			m_window->draw(*m_drawables.at(i).get(), sf::RenderStates(sf::BlendAlpha));
+			m_drawables[i].get()->Update(fDelta);
+			m_window->draw(*m_drawables[i].get(), sf::RenderStates(sf::BlendAlpha));
 		}
 
 		if (!m_bTrackHidden)
@@ -543,6 +577,24 @@ void CSfmlSpinePlayer::Redraw(float fDelta)
 
 		m_window->display();
 	}
+}
+
+sf::FloatRect CSfmlSpinePlayer::GetBoundingBox()
+{
+	float fMinX = FLT_MAX;
+	float fMinY = FLT_MAX;
+	float fMaxX = -FLT_MAX;
+	float fMaxY = -FLT_MAX;
+
+	for (const auto& drawable : m_drawables)
+	{
+		sf::FloatRect fRect = drawable->GetBoundingBox();
+		fMinX = (std::min)(fMinX, fRect.left);
+		fMinY = (std::min)(fMinY, fRect.top);
+		fMaxX = (std::max)(fMaxX, fRect.width);
+		fMaxY = (std::max)(fMaxY, fRect.height);
+	}
+	return sf::FloatRect{ fMinX, fMinY, fMaxX, fMaxY };
 }
 /*音声送り・戻し*/
 void CSfmlSpinePlayer::StepOnTrack(bool bForward)
