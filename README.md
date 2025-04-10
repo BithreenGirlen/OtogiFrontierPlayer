@@ -37,30 +37,30 @@ assetbundleresources
 </pre>
 
 ## Mouse functions
-| Input  | Action  |
+| Input | Action |
 | --- | --- |
 | Mouse wheel | Scale up/down the window. |
 | Left button + mouse wheel | Speed up/down the animation. |
 | Left button click | Switch to next animation. |
 | Left button drag | Move view-point. |
-| Middle button | Reset scaling, animation speed, and view point. |
+| Middle button | Reset scaling, animation speed, and view-point. |
 | Right button + mouse wheel | Play next/previous audio file. |
 | Right button + left button | Move window. |
 
 ## Keyboard functions
-| Input  | Action  |
+| Input | Action |
 | --- | --- |
-| Esc | Close the application. |
-| Up | Move on to the next folder. |
-| Down | Move on to the previous folder. |
-| PageUp | Speed up the audio playback rate. |
-| PageDown | Speed down the audio playback rate. |
-| Home | Reset the audio playback rate.|
-| D | Enable/disable initial offset.|
-| S | Enable/disable premultiplied alpha to sensitive slots.|
-| T | Hide/show audio track number.|
+| <kbd>Esc</kbd> | Close the application. |
+| <kbd>Up</kbd> | Move on to the next folder. |
+| <kbd>Down</kbd> | Move on to the previous folder. |
+| <kbd>D</kbd> | Enable/disable initial offset. |
+| <kbd>S</kbd> | Enable/disable premultiplied alpha to sensitive slots. |
+| <kbd>T</kbd> | Hide/show audio track number. |
 
 - It is better to disable the initial offset for newer scenes, and to enable for older scenes.
+
+## Configuration
+- File extensions for Spine and voice file can be specified through `setting.txt` in the same directory of the executable file.
 
 ## External Libraries
 - [SFML-2.6.2](https://www.sfml-dev.org/download/sfml/2.6.2/)
