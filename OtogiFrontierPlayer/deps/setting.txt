@@ -1,0 +1,8 @@
+{
+    "extensions":
+    {
+        "atlas": ".atlas.txt",
+        "skel": ".txt",
+        "voice": ".m4a",
+    }
+}

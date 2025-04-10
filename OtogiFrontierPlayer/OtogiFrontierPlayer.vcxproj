@@ -82,6 +82,7 @@
   <ItemGroup>
     <ClInclude Include="deps\spine-c-3.6\src\spine\Json.h" />
     <ClInclude Include="deps\spine-c-3.6\src\spine\kvec.h" />
+    <ClInclude Include="json_minimal.h" />
     <ClInclude Include="mf_media_player.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="sfml_spine_c.h" />
@@ -131,6 +132,7 @@
     <ClCompile Include="deps\spine-c-3.6\src\spine\Triangulator.c" />
     <ClCompile Include="deps\spine-c-3.6\src\spine\VertexAttachment.c" />
     <ClCompile Include="deps\spine-c-3.6\src\spine\VertexEffect.c" />
+    <ClCompile Include="json_minimal.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mf_media_player.cpp" />
     <ClCompile Include="sfml_spine_c.cpp" />
