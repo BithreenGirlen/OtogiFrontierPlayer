@@ -33,7 +33,6 @@ private:
 	sf::Vector2f m_DefaultScaleOffset{};
 	sf::Vector2f m_fDefaultPosOffset{};
 
-	bool m_bDefaultOffSetEnabled = false;
 	bool m_bSelectivePmaEnabled = false;
 
 	float m_fTimeScale = 1.f;

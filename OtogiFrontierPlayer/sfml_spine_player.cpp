@@ -212,10 +212,6 @@ int CSfmlSpinePlayer::Display()
 				case sf::Keyboard::Key::C:
 					ToggleTextColor();
 					break;
-				case sf::Keyboard::Key::D:
-					m_bDefaultOffSetEnabled ^= true;
-					ResetScale();
-					break;
 				case sf::Keyboard::Key::S:
 					m_bSelectivePmaEnabled ^= true;
 					for (const auto& drawable : m_drawables)
@@ -316,6 +312,10 @@ bool CSfmlSpinePlayer::SetupDrawer()
 		}
 	}
 
+	sf::FloatRect rect = GetBoundingBox();
+	m_fDefaultPosOffset.x = rect.left;
+	m_fDefaultPosOffset.y = rect.top;
+
 	if (!m_animationNames.empty())
 	{
 		for (const auto& drawble : m_drawables)
@@ -336,7 +336,6 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 {
 	if (m_skeletonData.empty())return;
 
-	m_fDefaultPosOffset = sf::Vector2f();
 	float fMaxSize = 0.f;
 	const auto CompareDimention = [this, &fMaxSize](float fWidth, float fHeight)
 		-> bool
@@ -362,35 +361,11 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 		spAttachment* pAttachment = spSkin_getAttachment(pSkeletonData->defaultSkin, 0, attachmentName);
 		if (pAttachment == nullptr)continue;
 
-		/*Calculation based on the discussion of forum thread 2998 and 7662*/
 		if (pAttachment->type == SP_ATTACHMENT_REGION)
 		{
 			spRegionAttachment* pRegionAttachment = (spRegionAttachment*)pAttachment;
 
-			bool bRet = CompareDimention(pRegionAttachment->width * pRegionAttachment->scaleX, pRegionAttachment->height * pRegionAttachment->scaleY);
-			if (bRet)
-			{
-				m_fDefaultPosOffset.x = pRegionAttachment->x;
-				m_fDefaultPosOffset.y = -pRegionAttachment->y;
-
-				if (pRegionAttachment->x != 0 || pRegionAttachment->y != 0)
-				{
-					spSlotData* pSlotData = spSkeletonData_findSlot(pSkeletonData.get(), attachmentName);
-					if (pSlotData == nullptr)continue;
-
-					for (int i = 0; i < pSkeletonData->bonesCount; ++i)
-					{
-						if (strcmp(pSlotData->boneData->name, pSkeletonData->bones[i]->name) == 0)
-						{
-							if (pRegionAttachment->y * pSkeletonData->bones[i]->y <= 0)
-							{
-								m_fDefaultPosOffset.y -= pSkeletonData->bones[i]->y;
-							}
-							break;
-						}
-					}
-				}
-			}
+			CompareDimention(pRegionAttachment->width * pRegionAttachment->scaleX, pRegionAttachment->height * pRegionAttachment->scaleY);
 		}
 		else if (pAttachment->type == SP_ATTACHMENT_MESH)
 		{
@@ -401,59 +376,7 @@ void CSfmlSpinePlayer::WorkOutDefualtSize()
 			float fScaleX = pSlotData != nullptr ? pSlotData->boneData->scaleX : 1.f;
 			float fScaleY = pSlotData != nullptr ? pSlotData->boneData->scaleY : 1.f;
 
-			bool bRet = CompareDimention(pMeshAttachment->width * fScaleX, pMeshAttachment->height * fScaleY);
-			if (bRet && pMeshAttachment->super.verticesCount >= pMeshAttachment->hullLength * 2)
-			{
-				const auto WorkoutCentroid = [&pMeshAttachment]()
-					-> sf::Vector2f
-					{
-						sf::Vector2f fCentroid{};
-						float fFilled = 0.f;
-
-						sf::Vector2f fFore
-						{
-							pMeshAttachment->super.vertices[2 * (pMeshAttachment->hullLength - 1)],
-							pMeshAttachment->super.vertices[2 * (pMeshAttachment->hullLength - 1) + 1]
-						};
-						for (int i = 0; i < pMeshAttachment->hullLength; ++i)
-						{
-							sf::Vector2f fNext
-							{
-								pMeshAttachment->super.vertices[2 * i],
-								pMeshAttachment->super.vertices[2 * i + 1]
-							};
-							float fArea = fFore.x * fNext.y - fFore.y * fNext.x;
-							fCentroid.x += (fFore.x + fNext.x) * fArea;
-							fCentroid.y += (fFore.y + fNext.y) * fArea;
-							fFilled += fArea;
-							fFore = fNext;
-						}
-						fCentroid.x /= (6.f * fFilled * 0.5f);
-						fCentroid.y /= (6.f * fFilled * 0.5f);
-
-						return fCentroid;
-					};
-
-				sf::Vector2f fCentroid = WorkoutCentroid();
-
-				m_fDefaultPosOffset.x = fCentroid.x;
-				m_fDefaultPosOffset.y = -fCentroid.y;
-
-				if (fCentroid.x != 0 || fCentroid.y != 0)
-				{
-					spSlotData* pSlotData = spSkeletonData_findSlot(pSkeletonData.get(), attachmentName);
-					if (pSlotData == nullptr)continue;
-
-					for (int i = 0; i < pSkeletonData->bonesCount; ++i)
-					{
-						if (strcmp(pSlotData->boneData->name, pSkeletonData->bones[i]->name) == 0)
-						{
-							m_fDefaultPosOffset.y -= pSkeletonData->bones[i]->y * 2.f;
-							break;
-						}
-					}
-				}
-			}
+			CompareDimention(pMeshAttachment->width * fScaleX, pMeshAttachment->height * fScaleY);
 		}
 	}
 
@@ -522,12 +445,11 @@ void CSfmlSpinePlayer::ResetScale()
 {
 	m_fTimeScale = 1.0f;
 	m_fSkeletonScale = m_fDefaultScale;
-	m_fOffset = m_bDefaultOffSetEnabled ? m_fDefaultPosOffset : sf::Vector2f{};
+	m_fOffset = m_fDefaultPosOffset;
 
-	RescaleSkeleton();
 	RescaleTime();
 	MoveViewPoint(0, 0);
-	ResizeWindow();
+	RescaleSkeleton();
 }
 /*ëãê°ñ@í≤êÆ*/
 void CSfmlSpinePlayer::ResizeWindow()
@@ -594,7 +516,7 @@ sf::FloatRect CSfmlSpinePlayer::GetBoundingBox()
 		fMaxX = (std::max)(fMaxX, fRect.width);
 		fMaxY = (std::max)(fMaxY, fRect.height);
 	}
-	return sf::FloatRect{ fMinX, fMinY, fMaxX, fMaxY };
+	return sf::FloatRect{ fMinX, fMinY, fMaxX - fMinX, fMaxY - fMinY };
 }
 /*âπê∫ëóÇËÅEñﬂÇµ*/
 void CSfmlSpinePlayer::StepOnTrack(bool bForward)
