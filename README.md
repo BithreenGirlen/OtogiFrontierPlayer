@@ -53,11 +53,8 @@ assetbundleresources
 | <kbd>Esc</kbd> | Close the application. |
 | <kbd>Up</kbd> | Move on to the next folder. |
 | <kbd>Down</kbd> | Move on to the previous folder. |
-| <kbd>D</kbd> | Enable/disable initial offset. |
 | <kbd>S</kbd> | Enable/disable premultiplied alpha to sensitive slots. |
 | <kbd>T</kbd> | Hide/show audio track number. |
-
-- It is better to disable the initial offset for newer scenes, and to enable for older scenes.
 
 ## Configuration
 - File extensions for Spine and voice file can be specified through `setting.txt` in the same directory of the executable file.
